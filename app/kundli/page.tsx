@@ -1,0 +1,381 @@
+"use client";
+
+import { useState } from "react";
+import { MandalaBackground } from "@/components/MandalaBackground";
+import { KundliForm } from "@/components/kundli/KundliForm";
+import { LagnaChart } from "@/components/kundli/LagnaChart";
+import { PlanetaryTable } from "@/components/kundli/PlanetaryTable";
+import { DashaTimeline } from "@/components/kundli/DashaTimeline";
+import { MOCK_KUNDLI, ZODIAC_SIGNS, type KundliResult } from "@/data/kundli";
+import { Download, Share2, RefreshCcw } from "lucide-react";
+import Link from "next/link";
+
+export default function KundliPage() {
+  const [kundli, setKundli]   = useState<KundliResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"chart" | "planets" | "dasha" | "prediction">("chart");
+
+  const getZodiacSymbol = (name: string) => {
+    return ZODIAC_SIGNS.find((z) => z.name.toLowerCase() === name.toLowerCase())?.symbol || "✦";
+  };
+
+  const handleGenerate = async (formData: { name: string; dob: string; tob: string; pob: string }) => {
+    setLoading(true);
+    // Simulate API call — in production this calls /api/kundli/generate
+    await new Promise((r) => setTimeout(r, 2000));
+    setKundli({ ...MOCK_KUNDLI, name: formData.name, dob: formData.dob, tob: formData.tob, pob: formData.pob });
+    setLoading(false);
+  };
+
+  const TABS = [
+    { id: "chart",      label: "Lagna Chart" },
+    { id: "planets",    label: "Planets" },
+    { id: "dasha",      label: "Dasha" },
+    { id: "prediction", label: "Prediction" },
+  ] as const;
+
+  return (
+    <div style={{ background: "var(--color-parchment)", minHeight: "100vh" }}>
+
+      {/* ── Page Hero ── */}
+      <section
+        className="relative pt-24 pb-16 overflow-hidden"
+        style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+      >
+        <MandalaBackground />
+        <div className="container-xl relative z-10 text-center">
+          <p className="section-eyebrow mb-4">Free · Instant · Accurate</p>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(2.5rem, 6vw, 4.5rem)",
+              color: "var(--color-parchment)",
+              lineHeight: 1.05,
+              marginBottom: "1rem",
+            }}
+          >
+            Your Vedic Kundli
+          </h1>
+          <p
+            className="max-w-xl mx-auto text-base"
+            style={{ color: "rgba(250, 245, 237, 0.55)", fontFamily: "var(--font-body)", lineHeight: 1.7 }}
+          >
+            Enter your birth details to generate a complete birth chart with planetary
+            positions, Vimshottari dasha, and personalized predictions — 100% free.
+          </p>
+        </div>
+      </section>
+
+      <div className="container-xl py-16">
+
+        {/* ── Form ── */}
+        {!kundli && (
+          <div className="max-w-lg mx-auto">
+            <KundliForm onGenerate={handleGenerate} loading={loading} />
+
+            {/* Loading state overlay */}
+            {loading && (
+              <div className="mt-8 flex flex-col items-center gap-4">
+                <div className="relative w-20 h-20">
+                  <div
+                    className="mandala-spin absolute inset-0"
+                    style={{
+                      border: "2px solid rgba(209,168,110,0.2)",
+                      borderTop: "2px solid var(--color-gold)",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center text-2xl">🔯</div>
+                </div>
+                <p style={{ color: "#0F0A1E", fontFamily: "var(--font-body)", fontWeight: 600 }}>
+                  Calculating your chart...
+                </p>
+                <p className="text-xs text-center" style={{ color: "rgba(15,10,30,0.45)", fontFamily: "var(--font-body)", maxWidth: 280 }}>
+                  Using Swiss Ephemeris to precisely position the 9 planets at the moment of your birth.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Results ── */}
+        {kundli && (
+          <div>
+            {/* Result header */}
+            <div
+              className="rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4"
+              style={{
+                background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))",
+                border: "1px solid rgba(209,168,110,0.25)",
+              }}
+            >
+              <div>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.8rem",
+                    color: "var(--color-parchment)",
+                  }}
+                >
+                  {kundli.name}&apos;s Kundli
+                </h2>
+                <p className="text-sm mt-1" style={{ color: "rgba(250,245,237,0.5)", fontFamily: "var(--font-body)" }}>
+                  {kundli.dob} · {kundli.tob} · {kundli.pob}
+                </p>
+                <div className="flex flex-wrap gap-3 mt-3">
+                  {[
+                    { label: "Ascendant", value: `${kundli.ascendantSymbol} ${kundli.ascendant}` },
+                    { label: "Moon Sign", value: `${getZodiacSymbol(kundli.moonSign)} ${kundli.moonSign}` },
+                    { label: "Sun Sign",  value: `${getZodiacSymbol(kundli.sunSign)} ${kundli.sunSign}` },
+                  ].map(({ label, value }) => (
+                    <div
+                      key={label}
+                      className="px-3 py-1.5 rounded-lg"
+                      style={{ background: "rgba(209,168,110,0.1)", border: "1px solid rgba(209,168,110,0.2)" }}
+                    >
+                      <span className="text-xs" style={{ color: "rgba(250,245,237,0.4)", fontFamily: "var(--font-body)" }}>{label}: </span>
+                      <span className="text-xs font-bold" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 flex-shrink-0">
+                <Link href="/kundli/pdf" className="btn-gold flex items-center gap-2 text-sm px-4 py-2">
+                  <Download size={14} /> Get PDF Report
+                </Link>
+                <button
+                  onClick={() => setKundli(null)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all hover:bg-white/10"
+                  style={{ border: "1px solid rgba(250,245,237,0.2)", color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}
+                >
+                  <RefreshCcw size={14} /> New Chart
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all hover:bg-white/10"
+                  style={{ border: "1px solid rgba(250,245,237,0.2)", color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}
+                >
+                  <Share2 size={14} /> Share
+                </button>
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div
+              className="flex gap-1 p-1 rounded-xl mb-8"
+              style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.15)", width: "fit-content" }}
+            >
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
+                  style={{
+                    background: activeTab === tab.id ? "var(--color-midnight)" : "transparent",
+                    color: activeTab === tab.id ? "var(--color-parchment)" : "var(--color-midnight-700)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            <div
+              className="rounded-2xl p-8"
+              style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.15)" }}
+            >
+              {activeTab === "chart" && (
+                <div className="flex flex-col gap-12">
+                  <div className="grid md:grid-cols-2 gap-12 items-start">
+                    <LagnaChart kundli={kundli} />
+                    {/* Yogas sidebar */}
+                    <div>
+                      <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--color-midnight)", marginBottom: "1rem" }}>
+                        Active Yogas
+                      </h3>
+                      <div className="flex flex-col gap-4">
+                        {kundli.yogas.map((yoga) => (
+                          <div
+                            key={yoga.name}
+                            className="rounded-xl p-4"
+                            style={{
+                              background: yoga.isPositive ? "rgba(209,168,110,0.06)" : "rgba(196,138,105,0.06)",
+                              border: `1px solid ${yoga.isPositive ? "rgba(209,168,110,0.2)" : "rgba(196,138,105,0.2)"}`,
+                            }}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <span>{yoga.isPositive ? "✦" : "⚠"}</span>
+                              <span className="font-semibold text-sm" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>
+                                {yoga.name}
+                              </span>
+                              <span
+                                className="ml-auto badge"
+                                style={{
+                                  background: yoga.isPositive ? "rgba(209,168,110,0.1)" : "rgba(196,138,105,0.1)",
+                                  color: yoga.isPositive ? "var(--color-gold-dark)" : "var(--color-saffron)",
+                                  border: yoga.isPositive ? "1px solid rgba(209,168,110,0.2)" : "1px solid rgba(196,138,105,0.2)",
+                                  fontSize: "0.6rem",
+                                }}
+                              >
+                                {yoga.isPositive ? "Positive" : "Challenging"}
+                              </span>
+                            </div>
+                            <p className="text-xs leading-relaxed" style={{ color: "rgba(45,41,38,0.65)", fontFamily: "var(--font-body)" }}>
+                              {yoga.description}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-6 p-4 rounded-xl" style={{ background: "rgba(209,168,110,0.06)", border: "1px solid rgba(209,168,110,0.15)" }}>
+                        <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--color-gold)" }}>
+                          Want a detailed analysis?
+                        </p>
+                        <p className="text-xs mb-3" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>
+                          Get a 20+ page detailed PDF with full house-by-house analysis, remedy guide, and upcoming events.
+                        </p>
+                        <Link href="/kundli/pdf" className="btn-gold text-xs px-4 py-2">
+                          Get Premium PDF Report →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sacred Zodiac Reliefs */}
+                  <div className="border-t border-[rgba(209,168,110,0.2)] pt-10">
+                    <h3
+                      className="text-center mb-8"
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: "1.6rem",
+                        color: "var(--color-midnight)",
+                      }}
+                    >
+                      Your Sacred Relief Alignments
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      {[
+                        {
+                          type: "Ascendant (Lagna)",
+                          name: kundli.ascendant,
+                          symbol: kundli.ascendantSymbol,
+                          desc: "The mask you wear, your outer personality, physical body, and path of destiny in this lifetime.",
+                        },
+                        {
+                          type: "Moon Sign (Rashi)",
+                          name: kundli.moonSign,
+                          symbol: getZodiacSymbol(kundli.moonSign),
+                          desc: "Your emotional landscape, mind, subconscious patterns, and intuitive nature.",
+                        },
+                        {
+                          type: "Sun Sign (Surya)",
+                          name: kundli.sunSign,
+                          symbol: getZodiacSymbol(kundli.sunSign),
+                          desc: "Your core ego, soul's purpose, vitality, authority, and path of self-expression.",
+                        },
+                      ].map((z) => (
+                        <div
+                          key={z.type}
+                          className="flex flex-col gap-4 p-5 rounded-2xl border"
+                          style={{
+                            background: "var(--color-cream)",
+                            borderColor: "rgba(209,168,110,0.25)",
+                          }}
+                        >
+                          <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-[rgba(209,168,110,0.15)] shadow-md">
+                            <img
+                              src={`/zodiacs/${z.name.toLowerCase()}.jpeg`}
+                              alt={`${z.name} Relic Sculpture`}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm border border-[rgba(209,168,110,0.25)] flex items-center justify-center text-sm shadow-sm">
+                              {z.symbol}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase tracking-widest text-[#B78F56] font-bold">
+                              {z.type}
+                            </p>
+                            <h4
+                              className="text-base font-bold mt-1"
+                              style={{
+                                color: "var(--color-midnight)",
+                                fontFamily: "var(--font-display)",
+                              }}
+                            >
+                              {z.name}
+                            </h4>
+                            <p className="text-xs leading-relaxed mt-2" style={{ color: "rgba(45,41,38,0.65)", fontFamily: "var(--font-body)" }}>
+                              {z.desc}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "planets" && <PlanetaryTable kundli={kundli} />}
+              {activeTab === "dasha"   && <DashaTimeline  kundli={kundli} />}
+
+              {activeTab === "prediction" && (
+                <div>
+                  <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--color-midnight)", marginBottom: "1rem" }}>
+                    AI-Powered Basic Predictions
+                  </h3>
+                  <div
+                    className="rounded-xl p-6 leading-loose"
+                    style={{ background: "var(--color-parchment)", border: "1px solid rgba(209,168,110,0.2)", color: "var(--color-midnight)", fontFamily: "var(--font-body)", fontSize: "0.95rem", lineHeight: 1.8 }}
+                  >
+                    {kundli.basicPrediction}
+                  </div>
+
+                  <div
+                    className="mt-6 rounded-xl p-5"
+                    style={{ background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))", border: "1px solid rgba(209,168,110,0.2)" }}
+                  >
+                    <p className="font-semibold mb-2" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>
+                      🤖 AI Astrologer — Coming Soon
+                    </p>
+                    <p className="text-sm mb-4" style={{ color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}>
+                      Our upcoming AI model will use your saved kundli context to answer any question
+                      about your specific chart — career, marriage, health, and more.
+                    </p>
+                    <Link href="/ai-chat" className="btn-gold text-xs px-4 py-2">
+                      Join Waitlist →
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Consultation CTA */}
+            <div
+              className="mt-8 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6"
+              style={{
+                background: "linear-gradient(135deg, var(--color-saffron), var(--color-saffron-dark))",
+                border: "1px solid rgba(209,168,110,0.2)",
+              }}
+            >
+              <div>
+                <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", color: "var(--color-parchment)" }}>
+                  Want a Professional Reading?
+                </h3>
+                <p className="mt-2 text-sm" style={{ color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}>
+                  Book a 1:1 session with our astrologer for a detailed, personalised interpretation of your chart.
+                </p>
+              </div>
+              <Link href="/consultation" className="btn-gold flex-shrink-0" style={{ color: "#FAF5ED", background: "var(--color-midnight)" }}>
+                Book Consultation
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
