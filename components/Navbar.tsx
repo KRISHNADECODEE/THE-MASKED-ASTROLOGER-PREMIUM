@@ -3,14 +3,18 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X, Star, User } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { CartDrawer } from "@/components/store/CartDrawer";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const NAV_LINKS = [
   { href: "/kundli",       label: "Kundli",       emoji: "🔯" },
-  { href: "/store",        label: "Store",        emoji: "🛍️" },
+  { href: "/matchmaking",  label: "Matching",     emoji: "💞" },
+  { href: "/horoscope",    label: "Rashifal",     emoji: "🌙" },
   { href: "/consultation", label: "Consult",      emoji: "🎙️" },
+  { href: "/store",        label: "Store",        emoji: "🛍️" },
   { href: "/courses",      label: "Courses",      emoji: "📚" },
   { href: "/blog",         label: "Blog",         emoji: "✍️" },
   { href: "/donate",       label: "Donate 🐾",    emoji: "" },
@@ -22,6 +26,18 @@ export function Navbar() {
   const pathname = usePathname();
   const { toggleCart, totalItems } = useCartStore();
   const cartCount = totalItems();
+  const { user } = useAuth();
+
+  const initials = (() => {
+    const name =
+      (user?.user_metadata?.full_name as string) || user?.email || "";
+    return name
+      .split(/[\s@.]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((s) => s[0]?.toUpperCase())
+      .join("");
+  })();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -38,14 +54,13 @@ export function Navbar() {
       <header
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: scrolled
-            ? "rgba(244, 239, 230, 0.95)"
-            : "transparent",
-          backdropFilter: scrolled ? "blur(20px)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
-          borderBottom: scrolled
-            ? "1px solid rgba(209, 168, 110, 0.2)"
-            : "none",
+          // Always keep a light, blurred bar so the dark logo/links stay
+          // readable over both light and dark (cosmic) hero sections.
+          background: scrolled ? "rgba(244, 239, 230, 0.97)" : "rgba(244, 239, 230, 0.82)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(209, 168, 110, 0.2)",
+          boxShadow: scrolled ? "0 4px 20px rgba(15,10,30,0.06)" : "none",
         }}
       >
         <div className="container-xl">
@@ -138,11 +153,21 @@ export function Navbar() {
 
               {/* Account */}
               <Link
-                href="/account"
-                className="p-2 rounded-md transition-all hover:bg-black/5"
+                href={user ? "/account" : "/login"}
+                aria-label={user ? "My account" : "Sign in"}
+                className="p-1.5 rounded-md transition-all hover:bg-black/5 flex items-center"
                 style={{ color: "rgba(45, 41, 38, 0.7)" }}
               >
-                <User size={20} />
+                {user ? (
+                  <span
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold"
+                    style={{ background: "linear-gradient(135deg, var(--color-gold), var(--color-gold-light))", color: "var(--color-midnight)" }}
+                  >
+                    {initials || <User size={16} />}
+                  </span>
+                ) : (
+                  <User size={20} />
+                )}
               </Link>
 
               {/* Mobile menu */}
@@ -158,13 +183,18 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu */}
+        <AnimatePresence>
         {mobileOpen && (
-          <div
-            className="lg:hidden border-t"
+          <motion.div
+            className="lg:hidden border-t overflow-hidden"
             style={{
               background: "rgba(244, 239, 230, 0.98)",
               borderColor: "rgba(209, 168, 110, 0.2)",
             }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
           >
             <div className="container-xl py-4 flex flex-col gap-1">
               {NAV_LINKS.map((link) => (
@@ -195,8 +225,9 @@ export function Navbar() {
                 <span className="animate-pulse">●</span> AI Astrologer — Coming Soon
               </Link>
             </div>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </header>
 
       {/* Cart Drawer */}

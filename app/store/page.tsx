@@ -1,13 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { ProductCard } from "@/components/store/ProductCard";
 import { PRODUCTS, CATEGORIES, getProductsByCategory, type ProductCategory } from "@/data/products";
 import { Search } from "lucide-react";
 
 export default function StorePage() {
-  const [activeCategory, setActiveCategory] = useState<ProductCategory | "all">("all");
+  return (
+    <Suspense fallback={null}>
+      <StoreContent />
+    </Suspense>
+  );
+}
+
+function StoreContent() {
+  const searchParams = useSearchParams();
+  const catParam = searchParams.get("cat");
+  const initialCategory: ProductCategory | "all" = CATEGORIES.some((c) => c.value === catParam)
+    ? (catParam as ProductCategory)
+    : "all";
+
+  const [activeCategory, setActiveCategory] = useState<ProductCategory | "all">(initialCategory);
   const [search, setSearch] = useState("");
 
   const filtered = getProductsByCategory(activeCategory).filter(
@@ -23,7 +38,7 @@ export default function StorePage() {
       {/* Hero */}
       <section
         className="relative pt-24 pb-14 overflow-hidden"
-        style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+        style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}
       >
         <MandalaBackground />
         <div className="container-xl relative z-10 text-center">

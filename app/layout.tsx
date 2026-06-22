@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { SiteAnnouncement } from "@/components/SiteAnnouncement";
 
 const fondamento = Fondamento({
   variable: "--font-fondamento",
@@ -72,9 +74,12 @@ export default function RootLayout({
       className={`${fondamento.variable} ${jost.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen flex flex-col antialiased">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <SiteAnnouncement />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthProvider>
         <Toaster
           position="top-right"
           toastOptions={{

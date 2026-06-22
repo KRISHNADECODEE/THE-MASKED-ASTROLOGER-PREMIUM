@@ -44,10 +44,7 @@ export const PRODUCTS: Product[] = [
     description:
       "A certified natural Blue Sapphire from Ceylon, ideal for strengthening Saturn in your horoscope. Associated with discipline, career growth, and mental clarity. Comes with a GII lab certificate.",
     shortDesc: "Certified Ceylon Blue Sapphire for Saturn, career & clarity.",
-    images: [
-      "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?w=600",
-      "https://images.unsplash.com/photo-1573408301185-9519b5f8f5f3?w=600",
-    ],
+    images: ["/products/blue-sapphire-neelam.jpg"],
     rating: 4.8,
     reviewCount: 142,
     inStock: true,
@@ -65,9 +62,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Natural Hessonite Garnet (Gomed) for Rahu remediation. Helps with confusion, delays, and hidden obstacles in life. Best worn on Saturday in silver.",
     shortDesc: "Natural Gomed for Rahu pacification and removing obstacles.",
-    images: [
-      "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=600",
-    ],
+    images: ["/products/hessonite-garnet-gomed.jpg"],
     rating: 4.5,
     reviewCount: 89,
     inStock: true,
@@ -104,9 +99,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Natural Sri Lankan Yellow Sapphire for Jupiter. Enhances wisdom, marriage prospects, wealth, and spiritual growth.",
     shortDesc: "Ceylon Yellow Sapphire for Jupiter, wisdom & prosperity.",
-    images: [
-      "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?w=600",
-    ],
+    images: ["/products/yellow-sapphire-pukhraj.jpg"],
     rating: 4.7,
     reviewCount: 113,
     inStock: true,
@@ -125,9 +118,7 @@ export const PRODUCTS: Product[] = [
     description:
       "108+1 bead Panchmukhi (5-faced) Rudraksha mala from Nepal. Perfect for daily meditation, mantra chanting, and Shiva worship. Each bead is energized and authenticated.",
     shortDesc: "108-bead 5-faced Rudraksha mala, energized from Nepal.",
-    images: [
-      "https://images.unsplash.com/photo-1600702777487-fca8c77e5ad7?w=600",
-    ],
+    images: ["/products/panchmukhi-rudraksha-mala.jpg"],
     rating: 4.9,
     reviewCount: 234,
     inStock: true,
@@ -415,6 +406,35 @@ export const PRODUCTS: Product[] = [
     benefit: "Vastu dosh correction at home",
   },
 ];
+
+/**
+ * Resolve the image to display for a product.
+ * Prefers a locally-hosted image (path starting with "/"), otherwise falls back
+ * to a stable, category-matched local illustration so cards never show a broken
+ * or mismatched remote image. Pass index>0 for gallery thumbs.
+ */
+export function productImageSrc(product: Product, index = 0): string {
+  const local = product.images?.[index];
+  if (local && local.startsWith("/")) return local;
+  const byCategory: Record<ProductCategory, string> = {
+    gemstones: "/products/gemstones.svg",
+    pooja: "/products/pooja.svg",
+    remedies: "/products/remedies.svg",
+    books: "/products/books.svg",
+    yantras: "/products/yantras.svg",
+  };
+  return byCategory[product.category] ?? "/products/placeholder.svg";
+}
+
+/**
+ * True when a product has a real, self-contained promo image (a local raster
+ * file) — these already include the name, price and badge, so the card shows
+ * the image full-bleed without duplicating that text as chrome.
+ */
+export function hasPromoImage(product: Product): boolean {
+  const first = product.images?.[0] ?? "";
+  return first.startsWith("/") && !first.endsWith(".svg");
+}
 
 export const FEATURED_PRODUCTS = PRODUCTS.filter((p) => p.isFeatured);
 

@@ -6,9 +6,14 @@ import { KundliForm } from "@/components/kundli/KundliForm";
 import { LagnaChart } from "@/components/kundli/LagnaChart";
 import { PlanetaryTable } from "@/components/kundli/PlanetaryTable";
 import { DashaTimeline } from "@/components/kundli/DashaTimeline";
-import { MOCK_KUNDLI, ZODIAC_SIGNS, type KundliResult } from "@/data/kundli";
+import { ZODIAC_SIGNS, type KundliResult } from "@/data/kundli";
+import { motion } from "framer-motion";
+import { computeKundli } from "@/lib/kundliEngine";
+import { downloadKundliPdf } from "@/lib/kundliPdf";
+import { KundliResultSkeleton } from "@/components/ui/Skeleton";
 import { Download, Share2, RefreshCcw } from "lucide-react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function KundliPage() {
   const [kundli, setKundli]   = useState<KundliResult | null>(null);
@@ -21,10 +26,20 @@ export default function KundliPage() {
 
   const handleGenerate = async (formData: { name: string; dob: string; tob: string; pob: string }) => {
     setLoading(true);
-    // Simulate API call — in production this calls /api/kundli/generate
+    // Deterministic Vedic chart from the birth details (production: /api/kundli/generate).
     await new Promise((r) => setTimeout(r, 2000));
-    setKundli({ ...MOCK_KUNDLI, name: formData.name, dob: formData.dob, tob: formData.tob, pob: formData.pob });
+    setKundli(computeKundli(formData));
     setLoading(false);
+  };
+
+  const handleDownloadPdf = () => {
+    if (!kundli) return;
+    try {
+      downloadKundliPdf(kundli, "free");
+      toast.success("Kundli PDF downloaded!");
+    } catch {
+      toast.error("Could not generate the PDF.");
+    }
   };
 
   const TABS = [
@@ -40,7 +55,7 @@ export default function KundliPage() {
       {/* ── Page Hero ── */}
       <section
         className="relative pt-24 pb-16 overflow-hidden"
-        style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+        style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}
       >
         <MandalaBackground />
         <div className="container-xl relative z-10 text-center">
@@ -68,44 +83,32 @@ export default function KundliPage() {
 
       <div className="container-xl py-16">
 
-        {/* ── Form ── */}
-        {!kundli && (
+        {/* ── Form (idle) ── */}
+        {!kundli && !loading && (
           <div className="max-w-lg mx-auto">
             <KundliForm onGenerate={handleGenerate} loading={loading} />
+          </div>
+        )}
 
-            {/* Loading state overlay */}
-            {loading && (
-              <div className="mt-8 flex flex-col items-center gap-4">
-                <div className="relative w-20 h-20">
-                  <div
-                    className="mandala-spin absolute inset-0"
-                    style={{
-                      border: "2px solid rgba(209,168,110,0.2)",
-                      borderTop: "2px solid var(--color-gold)",
-                      borderRadius: "50%",
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center text-2xl">🔯</div>
-                </div>
-                <p style={{ color: "#0F0A1E", fontFamily: "var(--font-body)", fontWeight: 600 }}>
-                  Calculating your chart...
-                </p>
-                <p className="text-xs text-center" style={{ color: "rgba(15,10,30,0.45)", fontFamily: "var(--font-body)", maxWidth: 280 }}>
-                  Using Swiss Ephemeris to precisely position the 9 planets at the moment of your birth.
-                </p>
-              </div>
-            )}
+        {/* ── Loading skeleton (mirrors the result, no layout shift) ── */}
+        {loading && (
+          <div>
+            <p className="text-center mb-8 text-sm flex items-center justify-center gap-2" style={{ color: "rgba(15,10,30,0.55)", fontFamily: "var(--font-body)" }}>
+              <span className="inline-block w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--color-gold)" }} />
+              Calculating your chart — positioning the 9 planets at your moment of birth…
+            </p>
+            <KundliResultSkeleton />
           </div>
         )}
 
         {/* ── Results ── */}
-        {kundli && (
-          <div>
+        {kundli && !loading && (
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
             {/* Result header */}
             <div
               className="rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4"
               style={{
-                background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))",
+                background: "linear-gradient(135deg, var(--color-cosmic), var(--color-cosmic-800))",
                 border: "1px solid rgba(209,168,110,0.25)",
               }}
             >
@@ -142,8 +145,11 @@ export default function KundliPage() {
 
               {/* Actions */}
               <div className="flex gap-3 flex-shrink-0">
-                <Link href="/kundli/pdf" className="btn-gold flex items-center gap-2 text-sm px-4 py-2">
-                  <Download size={14} /> Get PDF Report
+                <button onClick={handleDownloadPdf} className="btn-gold flex items-center gap-2 text-sm px-4 py-2">
+                  <Download size={14} /> Download PDF
+                </button>
+                <Link href="/kundli/pdf" className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all hover:bg-white/10" style={{ border: "1px solid rgba(250,245,237,0.2)", color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}>
+                  Premium Report
                 </Link>
                 <button
                   onClick={() => setKundli(null)}
@@ -289,6 +295,8 @@ export default function KundliPage() {
                             <img
                               src={`/zodiacs/${z.name.toLowerCase()}.jpeg`}
                               alt={`${z.name} Relic Sculpture`}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover"
                             />
                             <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm border border-[rgba(209,168,110,0.25)] flex items-center justify-center text-sm shadow-sm">
@@ -336,7 +344,7 @@ export default function KundliPage() {
 
                   <div
                     className="mt-6 rounded-xl p-5"
-                    style={{ background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))", border: "1px solid rgba(209,168,110,0.2)" }}
+                    style={{ background: "linear-gradient(135deg, var(--color-cosmic), var(--color-cosmic-800))", border: "1px solid rgba(209,168,110,0.2)" }}
                   >
                     <p className="font-semibold mb-2" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>
                       🤖 AI Astrologer — Coming Soon
@@ -373,7 +381,7 @@ export default function KundliPage() {
                 Book Consultation
               </Link>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

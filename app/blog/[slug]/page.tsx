@@ -177,7 +177,7 @@ export default function BlogDetailPage(props: { params: Promise<{ slug: string }
         <div
           className="mt-12 p-6 md:p-8 rounded-3xl grid grid-cols-1 md:grid-cols-2 gap-6"
           style={{
-            background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))",
+            background: "linear-gradient(135deg, var(--color-cosmic), var(--color-cosmic-800))",
             border: "1px solid rgba(209,168,110,0.25)",
           }}
         >

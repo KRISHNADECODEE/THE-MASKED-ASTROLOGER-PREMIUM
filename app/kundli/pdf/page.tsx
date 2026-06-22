@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { formatPrice } from "@/lib/utils";
-import { ArrowLeft, Check, Download, FileText, Lock, Sparkles } from "lucide-react";
+import { computeKundli } from "@/lib/kundliEngine";
+import { downloadKundliPdf } from "@/lib/kundliPdf";
+import { MOCK_KUNDLI } from "@/data/kundli";
+import { ArrowLeft, Check, Download, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -23,32 +26,35 @@ export default function KundliPdfPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const generateAndDownload = (resolvedTier: "free" | "premium") => {
+    try {
+      const kundli = computeKundli(formData);
+      downloadKundliPdf(kundli, resolvedTier);
+      toast.success(`${resolvedTier === "premium" ? "Premium" : "Free"} Kundli PDF downloaded!`, { id: "pdf" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not generate the PDF. Please try again.", { id: "pdf" });
+    }
+  };
+
   const handleDownload = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name || !formData.dob || !formData.tob || !formData.pob) {
+      toast.error("Please fill in all birth details.");
+      return;
+    }
 
     if (tier === "free") {
-      toast.loading("Generating your free Kundli PDF...", { id: "pdf" });
-      setTimeout(() => {
-        toast.success("Free PDF ready! Downloading...", { id: "pdf" });
-        // Trigger simulated PDF download
-        const link = document.createElement("a");
-        link.href = "#";
-        link.setAttribute("download", `kundli-${formData.name}-free.pdf`);
-        // Simulate download behavior
-        toast.success("Download started.");
-      }, 2000);
+      toast.loading("Generating your free Kundli PDF…", { id: "pdf" });
+      setTimeout(() => generateAndDownload("free"), 600);
     } else {
+      // In production this opens Razorpay; the PDF unlocks on payment success.
       setIsProcessing(true);
-      toast.loading("Initiating secure payment...", { id: "payment" });
-      
+      toast.loading("Processing secure payment…", { id: "pdf" });
       setTimeout(() => {
-        toast.success("Payment Successful! Generating Premium PDF...", { id: "payment" });
-        
-        setTimeout(() => {
-          toast.success("Premium 25-page Kundli PDF generated! Downloading...", { id: "pdf-premium" });
-          setIsProcessing(false);
-        }, 2000);
-      }, 2000);
+        generateAndDownload("premium");
+        setIsProcessing(false);
+      }, 1200);
     }
   };
 
@@ -286,9 +292,10 @@ export default function KundliPdfPage() {
                   </div>
                 </div>
                 <button
+                  type="button"
                   className="text-xs font-semibold flex items-center gap-1 hover:underline"
                   style={{ color: "#C9A227" }}
-                  onClick={() => toast.success("Sample PDF downloaded successfully!")}
+                  onClick={() => { downloadKundliPdf(MOCK_KUNDLI, "premium"); toast.success("Sample PDF downloaded!"); }}
                 >
                   View Sample
                 </button>

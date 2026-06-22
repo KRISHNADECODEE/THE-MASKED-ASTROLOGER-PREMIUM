@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Mail } from "lucide-react";
+import { Star, Mail, Phone, MapPin } from "lucide-react";
 
 const InstagramIcon = ({ size = 16 }: { size?: number }) => (
   <svg
@@ -53,13 +53,14 @@ const FOOTER_LINKS = {
     { href: "/store?cat=books",     label: "Books" },
   ],
   Learn: [
-    { href: "/blog",                label: "Astrology Blog" },
-    { href: "/blog?cat=transit",    label: "Planetary Transits" },
-    { href: "/blog?cat=doshas",     label: "Doshas & Remedies" },
-    { href: "/blog?cat=yogas",      label: "Powerful Yogas" },
+    { href: "/blog",                                  label: "Astrology Blog" },
+    { href: "/blog?cat=Planetary%20Transits",         label: "Planetary Transits" },
+    { href: "/blog?cat=Doshas",                       label: "Doshas & Remedies" },
+    { href: "/blog?cat=Yogas",                        label: "Powerful Yogas" },
   ],
   Company: [
     { href: "/about",   label: "About Us" },
+    { href: "/contact", label: "Contact Us" },
     { href: "/donate",  label: "Donate to Street Dogs 🐾" },
     { href: "/ai-chat", label: "AI Astrologer (Soon)" },
     { href: "/account", label: "My Account" },
@@ -70,8 +71,8 @@ export function Footer() {
   return (
     <footer
       style={{
-        background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-onyx) 100%)",
-        borderTop: "1px solid rgba(209, 168, 110, 0.15)",
+        background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-cosmic-deep) 100%)",
+        borderTop: "1px solid rgba(209, 168, 110, 0.18)",
       }}
     >
       {/* Main footer */}
@@ -84,6 +85,10 @@ export function Footer() {
               <img
                 src="/brand/logo.png"
                 alt="The Masked Astrologer Logo"
+                width={36}
+                height={36}
+                loading="lazy"
+                decoding="async"
                 className="w-9 h-9 rounded-full object-cover border"
                 style={{ borderColor: "var(--color-gold)" }}
               />
@@ -103,16 +108,30 @@ export function Footer() {
               className="text-sm leading-relaxed mb-6"
               style={{ color: "rgba(250,245,237,0.5)", fontFamily: "var(--font-body)", maxWidth: "300px" }}
             >
-              India's most modern Vedic astrology platform. Generate your kundli,
-              get expert guidance, shop authentic remedies, and discover your cosmic purpose.
+              India&apos;s most modern Vedic Jyotish platform — generate your Janm Kundli,
+              match horoscopes with Gun Milan, read your daily Rashifal, and consult an
+              expert Jyotishi for authentic guidance and remedies.
             </p>
+
+            {/* Contact */}
+            <div className="flex flex-col gap-1.5 mb-5 text-sm" style={{ color: "rgba(250,245,237,0.55)", fontFamily: "var(--font-body)" }}>
+              <a href="mailto:support@maskedastrologer.com" className="hover:text-[var(--color-gold)] transition-colors flex items-center gap-2">
+                <Mail size={14} /> support@maskedastrologer.com
+              </a>
+              <a href="tel:+919000000000" className="hover:text-[var(--color-gold)] transition-colors flex items-center gap-2">
+                <Phone size={14} /> +91 90000 00000
+              </a>
+              <span className="flex items-center gap-2">
+                <MapPin size={14} /> New Delhi, India
+              </span>
+            </div>
 
             {/* Social links */}
             <div className="flex gap-3">
               {[
-                { icon: InstagramIcon, href: "#", label: "Instagram" },
-                { icon: YoutubeIcon,   href: "#", label: "YouTube" },
-                { icon: Mail,          href: "mailto:hello@maskedastrologer.com", label: "Email" },
+                { icon: InstagramIcon, href: "https://instagram.com/maskedastrologer", label: "Instagram" },
+                { icon: YoutubeIcon,   href: "https://youtube.com/@maskedastrologer", label: "YouTube" },
+                { icon: Mail,          href: "mailto:support@maskedastrologer.com", label: "Email" },
               ].map(({ icon: Icon, href, label }) => (
                 <Link
                   key={label}
@@ -184,10 +203,14 @@ export function Footer() {
             © {new Date().getFullYear()} The Masked Astrologer. All rights reserved.
           </p>
           <div className="flex gap-6">
-            {["Privacy Policy", "Terms of Service", "Refund Policy"].map((t) => (
+            {[
+              { t: "Privacy Policy", href: "/privacy" },
+              { t: "Terms of Service", href: "/terms" },
+              { t: "Refund Policy", href: "/refund" },
+            ].map(({ t, href }) => (
               <Link
                 key={t}
-                href="#"
+                href={href}
                 className="text-xs transition-colors"
                 style={{ color: "rgba(250,245,237,0.3)", fontFamily: "var(--font-body)" }}
                 onMouseEnter={(e) => {
@@ -205,7 +228,23 @@ export function Footer() {
             className="text-xs"
             style={{ color: "rgba(250,245,237,0.25)", fontFamily: "var(--font-body)" }}
           >
-            🌟 Crafted with cosmic love in India
+            🕉️ Rooted in Vedic tradition · Serving seekers worldwide
+          </p>
+        </div>
+
+        {/* Agency credit */}
+        <div className="mt-4 pt-4 text-center" style={{ borderTop: "1px solid rgba(209,168,110,0.08)" }}>
+          <p className="text-[11px] tracking-wide" style={{ color: "rgba(250,245,237,0.28)", fontFamily: "var(--font-body)" }}>
+            Managed by{" "}
+            <a
+              href="https://apexraydigital.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold transition-colors hover:text-[var(--color-gold)]"
+              style={{ color: "rgba(250,245,237,0.45)", letterSpacing: "0.08em" }}
+            >
+              APEXRAY DIGITAL AGENCY
+            </a>
           </p>
         </div>
       </div>

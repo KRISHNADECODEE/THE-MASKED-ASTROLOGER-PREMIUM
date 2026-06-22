@@ -1,16 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { BLOG_POSTS } from "@/data/content";
 import { Search, Calendar, Clock, ArrowRight } from "lucide-react";
 
 export default function BlogListingPage() {
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [search, setSearch] = useState("");
+  return (
+    <Suspense fallback={null}>
+      <BlogListingContent />
+    </Suspense>
+  );
+}
 
+function BlogListingContent() {
   const categories = ["all", ...Array.from(new Set(BLOG_POSTS.map((post) => post.category)))];
+
+  const searchParams = useSearchParams();
+  const catParam = searchParams.get("cat");
+  const initialCategory = catParam && categories.includes(catParam) ? catParam : "all";
+
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
+  const [search, setSearch] = useState("");
 
   const filtered = BLOG_POSTS.filter(
     (post) =>
@@ -27,7 +40,7 @@ export default function BlogListingPage() {
       {/* Hero */}
       <section
         className="relative pt-24 pb-14 overflow-hidden"
-        style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+        style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}
       >
         <MandalaBackground />
         <div className="container-xl relative z-10 text-center">

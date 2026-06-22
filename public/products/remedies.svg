@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#1b2a22"/>
+      <stop offset="100%" stop-color="#0e1812"/>
+    </radialGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7fbf6a"/>
+      <stop offset="100%" stop-color="#3f7a3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="280" r="210" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.18"/>
+  <circle cx="300" cy="280" r="170" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.10"/>
+  <g transform="translate(300 280)">
+    <path d="M0 120 C-10 40 -10 -40 0 -120" fill="none" stroke="#C9A227" stroke-width="4"/>
+    <g>
+      <path d="M0 60 C-70 50 -95 0 -80 -55 C-20 -40 5 5 0 60 Z" fill="url(#leaf)"/>
+      <path d="M0 60 C-70 50 -95 0 -80 -55" fill="none" stroke="#cfe9c2" stroke-width="1.5" opacity="0.5"/>
+    </g>
+    <g transform="scale(-1,1)">
+      <path d="M0 20 C-70 10 -95 -40 -80 -95 C-20 -80 5 -35 0 20 Z" fill="url(#leaf)"/>
+    </g>
+    <path d="M0 -10 C70 -20 95 -70 80 -125 C20 -110 -5 -65 0 -10 Z" fill="url(#leaf)"/>
+  </g>
+  <g fill="#C9A227" opacity="0.8">
+    <circle cx="165" cy="165" r="2.5"/><circle cx="440" cy="185" r="2"/>
+    <circle cx="430" cy="430" r="2.5"/><circle cx="175" cy="425" r="2"/>
+  </g>
+  <text x="300" y="500" text-anchor="middle" fill="#C9A227" opacity="0.85"
+        font-family="Georgia, serif" font-size="30" letter-spacing="3">REMEDY</text>
+</svg>

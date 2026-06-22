@@ -16,7 +16,7 @@ export default function CoursesPage() {
       {/* Hero */}
       <section
         className="relative pt-24 pb-16 overflow-hidden"
-        style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+        style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}
       >
         <MandalaBackground />
         <div className="container-xl relative z-10 text-center">

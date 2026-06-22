@@ -1,19 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import { motion, AnimatePresence } from "framer-motion";
+import { itemVariants } from "@/components/motion";
 import { Star, ArrowRight, Zap } from "lucide-react";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { FEATURED_PRODUCTS } from "@/data/products";
 import { TESTIMONIALS, BLOG_POSTS } from "@/data/content";
+import { RASHIS } from "@/data/rashi";
 import { ProductCard } from "@/components/store/ProductCard";
-import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
 import { WaitlistForm } from "@/components/home/WaitlistForm";
+import { HoroscopeModal } from "@/components/home/HoroscopeModal";
+import { useAuth } from "@/components/auth/AuthProvider";
+
+// Below-the-fold — load on demand to keep the initial bundle/paint light.
+const TestimonialsCarousel = dynamic(
+  () => import("@/components/home/TestimonialsCarousel").then((m) => m.TestimonialsCarousel),
+  { loading: () => <div className="skeleton h-64 w-full max-w-3xl mx-auto rounded-2xl" /> }
+);
 
 const MODULES = [
-  { href: "/kundli",       title: "Kundli Generator",        emoji: "🔯", desc: "Free birth chart with planetary positions, dashas & predictions",            badge: "Free",    color: "#C9A227" },
+  { href: "/kundli",       title: "Free Birth Chart",        emoji: "🔯", desc: "Free Kundli with planetary positions, dashas & predictions — instant",      badge: "Free",    color: "#C9A227" },
+  { href: "/matchmaking",  title: "Kundli Matchmaking",      emoji: "💞", desc: "Gun Milan compatibility across all 8 kootas (36 gunas) for marriage",       badge: "Popular", color: "#C48A69" },
+  { href: "/horoscope",    title: "Daily Rashifal",          emoji: "🌙", desc: "Today's Moon-sign reading for all 12 Rashis — love, work & health",        badge: "Daily",   color: "#7C5CBF" },
+  { href: "/consultation", title: "Live Consultation",       emoji: "🎙️", desc: "Book a 1:1 chat, call, or video session with our expert astrologer",         badge: null,      color: "#C9A227" },
   { href: "/kundli/pdf",   title: "Kundli PDF Report",       emoji: "📄", desc: "Downloadable branded kundli report — free basic, paid detailed version",    badge: "New",     color: "#E87722" },
   { href: "/ai-chat",      title: "AI Astrologer",           emoji: "🤖", desc: "Personalized AI trained on 1,00,000+ charts — coming soon to early birds",  badge: "Soon",    color: "#7C5CBF" },
-  { href: "/consultation", title: "1:1 Consultation",        emoji: "🎙️", desc: "Book a live or voice-note session with our expert astrologer",               badge: null,      color: "#C9A227" },
   { href: "/courses",      title: "Astrology Courses",       emoji: "📚", desc: "Learn Vedic astrology from beginner to advanced level — video + PDF",       badge: null,      color: "#E87722" },
   { href: "/store",        title: "Gemstones & Remedies",    emoji: "💎", desc: "Shop certified gemstones, yantras, books, and pooja items",                  badge: null,      color: "#C9A227" },
   { href: "/blog",         title: "Astrology Blog",          emoji: "✍️", desc: "Deep-dive articles on transits, yogas, doshas, and chart reading",           badge: null,      color: "#E87722" },
@@ -42,22 +56,14 @@ const PROMPT_CHIPS = [
   "How to reduce Sade Sati effects?",
 ];
 
-const ZODIACS_LIST = [
-  { id: "aries",       symbol: "♈", traits: "Courage · Leadership · Passion" },
-  { id: "taurus",      symbol: "♉", traits: "Strength · Stability · Determination" },
-  { id: "gemini",      symbol: "♊", traits: "Intelligence · Adaptability · Communication" },
-  { id: "cancer",      symbol: "♋", traits: "Intuition · Protection · Emotional Depth" },
-  { id: "leo",         symbol: "♌", traits: "Confidence · Creativity · Generosity" },
-  { id: "virgo",       symbol: "♍", traits: "Analytical · Practical · Dedicated" },
-  { id: "libra",       symbol: "♎", traits: "Balance · Harmony · Diplomacy" },
-  { id: "scorpio",     symbol: "♏", traits: "Passion · Mystery · Transformation" },
-  { id: "sagittarius", symbol: "♐", traits: "Adventure · Wisdom · Freedom" },
-  { id: "capricorn",   symbol: "♑", traits: "Ambition · Discipline · Resilience" },
-  { id: "aquarius",    symbol: "♒", traits: "Innovation · Humanity · Individuality" },
-  { id: "pisces",      symbol: "♓", traits: "Compassion · Intuition · Spirituality" },
-];
-
 export default function HomePage() {
+  const { user } = useAuth();
+  const [horoSign, setHoroSign] = useState<string | null>(null);
+  const firstName =
+    ((user?.user_metadata?.full_name as string) || user?.email?.split("@")[0] || "")
+      .split(/[\s@.]+/)[0];
+  const greetingName = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1) : "";
+
   return (
     <div style={{ background: "var(--color-parchment)" }}>
       {/* ═══════════════════════════════════════════════════════
@@ -86,6 +92,16 @@ export default function HomePage() {
             />
           </div>
 
+          {/* Personalized greeting for signed-in users */}
+          {greetingName && (
+            <p
+              className="mb-3 text-sm font-semibold animate-fade-in"
+              style={{ color: "var(--color-gold-dark)", fontFamily: "var(--font-body)" }}
+            >
+              🙏 Namaste, {greetingName} — the stars have been waiting for you.
+            </p>
+          )}
+
           {/* Eyebrow */}
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-semibold uppercase tracking-widest"
@@ -110,9 +126,9 @@ export default function HomePage() {
               textShadow: "0 2px 20px rgba(209,168,110,0.15)",
             }}
           >
-            Born Under the Stars.
+            Born of the Nakshatras.
             <br />
-            <span style={{ color: "var(--color-gold)" }}>Decoded by the Cosmos.</span>
+            <span style={{ color: "var(--color-gold)" }}>Guided by the Grahas.</span>
           </h1>
 
           {/* Subtitle */}
@@ -124,9 +140,9 @@ export default function HomePage() {
               lineHeight: 1.7,
             }}
           >
-            India&apos;s most modern Vedic astrology platform. Generate your free kundli,
-            get personalized expert consultations, shop authentic remedies, and
-            understand your unique cosmic blueprint.
+            India&apos;s most modern Vedic astrology platform. Generate your free birth chart,
+            check marriage compatibility, read your daily horoscope, and book a live
+            chat, call, or video consultation with our expert astrologer.
           </p>
 
           {/* CTAs */}
@@ -234,12 +250,18 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.15 }}
+            variants={{ show: { transition: { staggerChildren: 0.06 } } }}
+          >
             {MODULES.map((mod) => (
+              <motion.div key={mod.href} variants={itemVariants} className="h-full">
               <Link
-                key={mod.href}
                 href={mod.href}
-                className="card group p-6 flex flex-col gap-3"
+                className="card group p-6 flex flex-col gap-3 h-full"
                 style={{ background: "var(--color-ivory)", textDecoration: "none" }}
               >
                 <div className="flex items-start justify-between">
@@ -276,8 +298,9 @@ export default function HomePage() {
                   Explore <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -520,41 +543,50 @@ export default function HomePage() {
       <section className="py-24" style={{ background: "var(--color-parchment-dark)" }}>
         <div className="container-xl">
           <div className="text-center mb-16">
-            <p className="section-eyebrow mb-3">Vedic Relic Sculptures</p>
-            <h2 className="section-title">The 12 Sacred Signs</h2>
+            <p className="section-eyebrow mb-3">The Twelve Rashis · Vedic Relief Art</p>
+            <h2 className="section-title">The 12 Rashis</h2>
             <p className="mt-4 max-w-xl mx-auto text-base" style={{ color: "rgba(45,41,38,0.65)", fontFamily: "var(--font-body)", lineHeight: 1.7 }}>
-              Ancient sidereal alignments mapped onto classical clay relief sculptures. Hover over each card to discover its core cosmic traits.
+              The twelve Rashis (moon signs) of Vedic Jyotish, each ruled by its Graha (planet).
+              <span className="font-semibold" style={{ color: "var(--color-gold-dark)" }}> Tap any Rashi to read today&apos;s Rashifal.</span>
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {ZODIACS_LIST.map((z) => (
-              <div
-                key={z.id}
-                className="group relative overflow-hidden rounded-2xl border aspect-square cursor-pointer transition-all duration-300 hover:scale-103"
+            {RASHIS.map((r, i) => (
+              <motion.button
+                key={r.id}
+                onClick={() => setHoroSign(r.id)}
+                aria-label={`Read today's ${r.sanskrit} rashifal`}
+                className="group relative overflow-hidden rounded-2xl border aspect-square cursor-pointer text-left w-full"
                 style={{
                   borderColor: "rgba(209,168,110,0.25)",
                   boxShadow: "0 4px 20px rgba(15,10,30,0.04)"
                 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.35, delay: (i % 4) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
               >
-                {/* Zodiac Image background */}
+                {/* Rashi relief background */}
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-108"
-                  style={{ backgroundImage: `url(/zodiacs/${z.id}.jpeg)` }}
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-[1.08]"
+                  style={{ backgroundImage: `url(/zodiacs/${r.id}.jpeg)` }}
                 />
                 {/* Gradient overlay on hover */}
                 <div
                   className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 flex flex-col justify-end p-4"
                   style={{
-                    background: "linear-gradient(to top, rgba(45,41,38,0.92) 0%, rgba(45,41,38,0.4) 60%, transparent 100%)",
+                    background: "linear-gradient(to top, rgba(13,10,34,0.94) 0%, rgba(27,22,64,0.45) 60%, transparent 100%)",
                   }}
                 >
-                  <p className="text-xs uppercase tracking-widest text-[#D1A86E] font-bold">
-                    {z.symbol} {z.id}
+                  <p className="text-sm font-bold" style={{ color: "var(--color-gold)", fontFamily: "var(--font-display)" }}>
+                    {r.sanskrit}
                   </p>
                   <p className="text-[10px] mt-1 text-[#FAF5ED] leading-relaxed font-semibold">
-                    {z.traits}
+                    {r.traits}
                   </p>
+                  <p className="text-[10px] mt-1" style={{ color: "rgba(250,245,237,0.6)" }}>Swami: {r.lord} · {r.western}</p>
                 </div>
                 {/* Label (always visible bottom strip) */}
                 <div
@@ -565,15 +597,20 @@ export default function HomePage() {
                     borderTop: "1px solid rgba(209,168,110,0.15)",
                   }}
                 >
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#2D2926]">
-                    {z.symbol} {z.id}
+                  <span className="text-xs font-bold tracking-wider text-[#2D2926]">
+                    {r.sanskrit}
                   </span>
                 </div>
-              </div>
+              </motion.button>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Daily-horoscope popup for the tapped sign */}
+      <AnimatePresence>
+        {horoSign && <HoroscopeModal key={horoSign} sign={horoSign} onClose={() => setHoroSign(null)} />}
+      </AnimatePresence>
 
       {/* ═══════════════════════════════════════════════════════
           TESTIMONIALS

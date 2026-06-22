@@ -1,22 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Mail, ArrowRight } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function WaitlistForm() {
+  const { user } = useAuth();
   const [email, setEmail]     = useState("");
   const [loading, setLoading] = useState(false);
   const [joined, setJoined]   = useState(false);
+
+  // Pre-fill with the signed-in user's email.
+  useEffect(() => {
+    if (user?.email) setEmail((e) => e || user.email!);
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200)); // mock API
-    setJoined(true);
-    setLoading(false);
-    toast.success("You're on the waitlist! We'll notify you first. ✨");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "home_hero" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not join waitlist");
+      setJoined(true);
+      toast.success("You're on the waitlist! We'll notify you first. ✨");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not join waitlist");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (joined) {

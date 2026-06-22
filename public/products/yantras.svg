@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#2a2030"/>
+      <stop offset="100%" stop-color="#140d1d"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <g transform="translate(300 285)" fill="none" stroke="#C9A227" stroke-width="2">
+    <circle r="200" opacity="0.2"/>
+    <rect x="-185" y="-185" width="370" height="370" opacity="0.35"/>
+    <path d="M-185 -150 h40 v-35 h35 M185 -150 h-40 v-35 h-35 M-185 150 h40 v35 h35 M185 150 h-40 v35 h-35" opacity="0.5"/>
+    <circle r="160" opacity="0.6"/>
+    <g opacity="0.95">
+      <polygon points="0,-150 130,75 -130,75"/>
+      <polygon points="0,-150 130,75 -130,75" transform="rotate(180)"/>
+      <polygon points="0,-110 95,55 -95,55"/>
+      <polygon points="0,-110 95,55 -95,55" transform="rotate(180)"/>
+      <polygon points="0,-70 60,35 -60,35"/>
+      <polygon points="0,-70 60,35 -60,35" transform="rotate(180)"/>
+    </g>
+    <circle r="14" fill="#C9A227" stroke="none"/>
+    <g stroke-width="1.5" opacity="0.7">
+      <circle r="62"/>
+    </g>
+  </g>
+  <text x="300" y="520" text-anchor="middle" fill="#C9A227" opacity="0.85"
+        font-family="Georgia, serif" font-size="30" letter-spacing="3">YANTRA</text>
+</svg>

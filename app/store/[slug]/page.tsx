@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { notFound } from "next/navigation";
-import { getProductBySlug, PRODUCTS } from "@/data/products";
+import { getProductBySlug, PRODUCTS, productImageSrc } from "@/data/products";
 import { useCartStore } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/components/store/ProductCard";
@@ -50,19 +50,19 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             <div
               className="aspect-square rounded-2xl overflow-hidden bg-cover bg-center"
               style={{
-                backgroundImage: `url(${product.images[activeImage]})`,
+                backgroundImage: `url(${productImageSrc(product, activeImage)})`,
                 border: "1px solid rgba(209,168,110,0.15)",
               }}
             />
             {product.images.length > 1 && (
               <div className="flex gap-2">
-                {product.images.map((img, i) => (
+                {product.images.map((_, i) => (
                    <button
                      key={i}
                      onClick={() => setActiveImage(i)}
                      className="w-16 h-16 rounded-lg overflow-hidden bg-cover bg-center transition-all"
                      style={{
-                       backgroundImage: `url(${img})`,
+                       backgroundImage: `url(${productImageSrc(product, i)})`,
                        border: `2px solid ${activeImage === i ? "var(--color-gold)" : "rgba(209,168,110,0.2)"}`,
                      }}
                    />

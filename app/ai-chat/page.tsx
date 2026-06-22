@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { Sparkles, MessageSquare, Send, BellRing, Lock, User, UserCheck } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const SUGGESTED_PROMPTS = [
   "What does my Saturn return in Aquarius mean?",
@@ -20,8 +21,13 @@ const CREDIBILITY_ITEMS = [
 ];
 
 export default function AiChatPage() {
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [isJoined, setIsJoined] = useState(false);
+
+  useEffect(() => {
+    if (user?.email) setEmail((e) => e || user.email!);
+  }, [user]);
   const [messages, setMessages] = useState<Array<{ sender: "user" | "bot"; text: string }>>([
     {
       sender: "bot",
@@ -30,16 +36,24 @@ export default function AiChatPage() {
   ]);
   const [inputText, setInputText] = useState("");
 
-  const handleJoinWaitlist = (e: React.FormEvent) => {
+  const handleJoinWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     toast.loading("Securing your spot...", { id: "waitlist" });
-    setTimeout(() => {
-      toast.success("Welcome aboard! You have joined the waitlist.", { id: "waitlist" });
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "ai_chat" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not join waitlist");
+      toast.success(data.message || "Welcome aboard! You have joined the waitlist.", { id: "waitlist" });
       setIsJoined(true);
-      setEmail("");
-    }, 1500);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not join waitlist", { id: "waitlist" });
+    }
   };
 
   const handleSendMessage = (text: string) => {

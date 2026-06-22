@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { MOCK_KUNDLI } from "@/data/kundli";
+import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/supabase/types";
 
 export async function POST(request: Request) {
   try {
@@ -39,7 +41,29 @@ export async function POST(request: Request) {
     // Simulate network delay for premium feel
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    return NextResponse.json({ success: true, kundli: calculatedKundli });
+    // Persist the chart for logged-in users so it appears under My Account → Saved Kundlis.
+    let saved = false;
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from("saved_kundlis").insert({
+          user_id: user.id,
+          name,
+          dob,
+          tob,
+          pob,
+          chart_data: calculatedKundli as unknown as Json,
+        });
+        saved = !error;
+      }
+    } catch {
+      // Saving is best-effort; never block chart generation on it.
+    }
+
+    return NextResponse.json({ success: true, kundli: calculatedKundli, saved });
   } catch (error: any) {
     console.error("Kundli generation API error:", error);
     return NextResponse.json(

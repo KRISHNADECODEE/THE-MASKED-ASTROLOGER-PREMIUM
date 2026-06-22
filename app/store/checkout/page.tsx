@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/store/cart";
+import { productImageSrc } from "@/data/products";
 import { formatPrice } from "@/lib/utils";
 import { ArrowLeft, CreditCard, ShieldCheck, Truck, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { openRazorpayCheckout } from "@/lib/payments/razorpayCheckout";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -51,16 +53,69 @@ export default function CheckoutPage() {
     }
 
     setIsProcessing(true);
-    toast.loading("Initiating secure checkout...", { id: "checkout" });
 
-    // Simulate API call to create order and initiate payment
-    setTimeout(() => {
+    const orderItems = items.map((i) => ({
+      product_id: i.product.id,
+      product_name: i.product.name,
+      slug: i.product.slug,
+      price: i.product.price,
+      quantity: i.quantity,
+    }));
+
+    try {
+      // Cash on delivery → record the order directly (status: pending).
+      if (paymentMethod === "cod") {
+        toast.loading("Placing your order...", { id: "checkout" });
+        const res = await fetch("/api/store/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: orderItems, shipping, paymentMethod: "cod", total }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Checkout failed");
+        toast.success("Order placed! Pay on delivery.", { id: "checkout" });
+        clearCart();
+        router.push(`/store/checkout/success?orderId=${data.orderId}`);
+        return;
+      }
+
+      // Online (UPI / card / netbanking / wallet) → Razorpay.
+      toast.loading("Opening secure payment...", { id: "checkout" });
+      const orderRes = await fetch("/api/payments/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total, receipt: `store_${Date.now()}` }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error(orderData.error || "Could not start payment");
+
+      toast.dismiss("checkout");
+      const result = await openRazorpayCheckout({
+        keyId: orderData.keyId,
+        orderId: orderData.orderId,
+        amount: orderData.amount,
+        name: "The Masked Astrologer",
+        description: `${items.length} item(s) · Store order`,
+        prefill: { name: shipping.name, email: shipping.email, contact: shipping.phone },
+      });
+
+      toast.loading("Confirming payment...", { id: "checkout" });
+      const res = await fetch("/api/store/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: orderItems, shipping, paymentMethod: "razorpay", total, razorpay: result }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Payment verification failed");
+
       toast.success("Payment successful! Order placed.", { id: "checkout" });
       clearCart();
-      // Redirect to a simulated success page
-      router.push(`/store/checkout/success?orderId=ORD-${Math.floor(100000 + Math.random() * 900000)}`);
+      router.push(`/store/checkout/success?orderId=${data.orderId}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Checkout failed", { id: "checkout" });
+    } finally {
       setIsProcessing(false);
-    }, 2500);
+    }
   };
 
   if (items.length === 0) return null;
@@ -297,7 +352,7 @@ export default function CheckoutPage() {
                     <div className="flex gap-3 min-w-0">
                       <div
                         className="w-12 h-12 rounded bg-cover bg-center bg-ivory flex-shrink-0"
-                        style={{ backgroundImage: `url(${product.images[0]})` }}
+                        style={{ backgroundImage: `url(${productImageSrc(product)})` }}
                       />
                       <div className="min-w-0">
                         <p className="text-sm font-semibold truncate" style={{ color: "var(--color-parchment)" }}>

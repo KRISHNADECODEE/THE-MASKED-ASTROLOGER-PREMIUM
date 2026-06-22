@@ -18,6 +18,13 @@
   --color-maroon-light:   #AEC4D1;
   --color-onyx:           #221E1C;
 
+  /* ── Cosmic palette (deep blues · subtle purples · gold) ──────── */
+  --color-cosmic:         #1B1640;  /* deep indigo base */
+  --color-cosmic-800:     #262056;  /* lighter indigo */
+  --color-cosmic-deep:    #0D0A22;  /* near-black cosmic */
+  --color-cosmic-blue:    #1E2E63;  /* deep cosmic blue */
+  --color-nebula:         #452E76;  /* subtle nebula purple */
+
   /* ── Typography ─────────────────────────────────────────────── */
   --font-display: var(--font-fondamento), "Palatino Linotype", Georgia, serif;
   --font-body:    var(--font-jost), "Inter", system-ui, sans-serif;
@@ -113,6 +120,33 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 3.5s linear infinite;
+}
+
+/* ── Skeleton loaders (shimmer) ── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(209,168,110,0.08) 25%,
+    rgba(209,168,110,0.20) 37%,
+    rgba(209,168,110,0.08) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+.skeleton-dark {
+  background: linear-gradient(
+    90deg,
+    rgba(250,245,237,0.05) 25%,
+    rgba(250,245,237,0.14) 37%,
+    rgba(250,245,237,0.05) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .skeleton-dark { animation: none; }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -308,6 +342,13 @@ body {
 .input-field-dark::placeholder { color: rgba(250,245,237,0.4); }
 .input-field::placeholder { color: rgba(45,41,38,0.35); }
 
+/* Inputs with a leading icon: reserve left space so the text/placeholder does
+   not overlap the icon. The compound selector (.input-field.pl-N) has higher
+   specificity than the base .input-field padding shorthand, so it wins. */
+.input-field.pl-9  { padding-left: 2.25rem; }
+.input-field.pl-10 { padding-left: 2.5rem; }
+.input-field.pl-11 { padding-left: 2.75rem; }
+
 /* Badge */
 .badge {
   display: inline-flex;
@@ -326,7 +367,7 @@ body {
 
 /* Page hero */
 .page-hero {
-  background: linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 60%, var(--color-onyx) 100%);
+  background: linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 60%, var(--color-onyx) 100%);
   position: relative;
   overflow: hidden;
 }

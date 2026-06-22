@@ -4,6 +4,7 @@ import { X, Trash2, ShoppingBag, Plus, Minus } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/utils";
+import { productImageSrc } from "@/data/products";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, totalPrice } =
@@ -87,7 +88,7 @@ export function CartDrawer() {
                   <div
                     className="w-16 h-16 rounded-lg flex-shrink-0 overflow-hidden bg-cover bg-center"
                     style={{
-                      backgroundImage: `url(${product.images[0]})`,
+                      backgroundImage: `url(${productImageSrc(product)})`,
                       minWidth: "4rem",
                     }}
                   />

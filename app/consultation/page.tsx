@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { CONSULTATION_SERVICES } from "@/data/content";
 import { BookingForm } from "@/components/consultation/BookingForm";
+import { AstrologerProfile } from "@/components/AstrologerProfile";
 import { formatPrice } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -17,7 +19,7 @@ export default function ConsultationPage() {
       {/* Hero */}
       <section
         className="relative pt-24 pb-16 overflow-hidden"
-        style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+        style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}
       >
         <MandalaBackground />
         <div className="container-xl relative z-10 text-center">
@@ -35,6 +37,21 @@ export default function ConsultationPage() {
       </section>
 
       <div className="container-xl py-16">
+
+        {/* Connect modes */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16 max-w-3xl mx-auto">
+          {[
+            { emoji: "💬", title: "Chat", desc: "Written Q&A report — answered in detail" },
+            { emoji: "📞", title: "Call", desc: "Voice-note reading delivered to your phone" },
+            { emoji: "📹", title: "Video", desc: "Live 1:1 session on Zoom / Google Meet" },
+          ].map((m) => (
+            <div key={m.title} className="rounded-2xl p-5 text-center" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
+              <div className="text-3xl mb-2">{m.emoji}</div>
+              <p className="font-semibold text-sm" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{m.title}</p>
+              <p className="text-xs mt-1" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
 
         {/* Service cards */}
         <h2 className="section-title text-center mb-12">Choose Your Reading</h2>
@@ -92,7 +109,7 @@ export default function ConsultationPage() {
                     {formatPrice(svc.price)}
                   </p>
                   <Link
-                    href={`#book?service=${svc.id}`}
+                    href={`?service=${svc.id}#book`}
                     className={svc.popular ? "btn-gold w-full text-center mt-3 block" : "btn-saffron w-full text-center mt-3 block"}
                   >
                     Book Now
@@ -109,34 +126,13 @@ export default function ConsultationPage() {
           <p className="text-center mb-10" style={{ color: "rgba(15,10,30,0.5)", fontFamily: "var(--font-body)" }}>
             Fill in your details and we'll confirm your slot within 2 hours.
           </p>
-          <BookingForm services={CONSULTATION_SERVICES} />
+          <Suspense fallback={null}>
+            <BookingForm services={CONSULTATION_SERVICES} />
+          </Suspense>
         </div>
 
-        {/* Astrologer info */}
-        <div
-          className="mt-16 rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-center"
-          style={{ background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))", border: "1px solid rgba(209,168,110,0.2)" }}
-        >
-          <div
-            className="w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center text-4xl"
-            style={{ background: "rgba(209,168,110,0.1)", border: "2px solid rgba(209,168,110,0.3)" }}
-          >
-            🔯
-          </div>
-          <div>
-            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", color: "var(--color-parchment)" }}>
-              The Masked Astrologer
-            </h3>
-            <p className="text-sm mt-1 mb-4" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>
-              10+ years of practice · Vedic Jyotish · Lal Kitab · Nadi Astrology
-            </p>
-            <p className="text-sm leading-relaxed" style={{ color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}>
-              Trained in classical Vedic astrology with a focus on practical remedies
-              and predictive accuracy. Has analyzed 5,000+ charts across career,
-              relationships, health, and spiritual growth consultations.
-            </p>
-          </div>
-        </div>
+        {/* About the Astrologer — credentials, pricing & testimonials */}
+        <AstrologerProfile />
       </div>
     </div>
   );

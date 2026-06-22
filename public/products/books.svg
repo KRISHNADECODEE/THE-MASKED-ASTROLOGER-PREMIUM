@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#2a2030"/>
+      <stop offset="100%" stop-color="#160f1c"/>
+    </radialGradient>
+    <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6efdf"/>
+      <stop offset="100%" stop-color="#e6dcc4"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="280" r="210" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.18"/>
+  <circle cx="300" cy="280" r="170" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.10"/>
+  <g transform="translate(300 285)">
+    <path d="M0 -90 C-55 -120 -130 -110 -160 -90 L-160 95 C-130 75 -55 85 0 110 Z" fill="url(#pg)"/>
+    <path d="M0 -90 C55 -120 130 -110 160 -90 L160 95 C130 75 55 85 0 110 Z" fill="url(#pg)"/>
+    <path d="M0 -90 L0 110" stroke="#C9A227" stroke-width="3"/>
+    <g stroke="#b9a05f" stroke-width="2" opacity="0.6">
+      <path d="M-30 -55 C-80 -75 -125 -68 -145 -58"/>
+      <path d="M-30 -25 C-80 -45 -125 -38 -145 -28"/>
+      <path d="M-30 5 C-80 -15 -125 -8 -145 2"/>
+      <path d="M30 -55 C80 -75 125 -68 145 -58"/>
+      <path d="M30 -25 C80 -45 125 -38 145 -28"/>
+      <path d="M30 5 C80 -15 125 -8 145 2"/>
+    </g>
+    <circle cx="0" cy="-120" r="10" fill="#C9A227"/>
+  </g>
+  <text x="300" y="505" text-anchor="middle" fill="#C9A227" opacity="0.85"
+        font-family="Georgia, serif" font-size="32" letter-spacing="3">BOOK</text>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#2a1730"/>
+      <stop offset="100%" stop-color="#160c1e"/>
+    </radialGradient>
+    <radialGradient id="flame" cx="50%" cy="60%" r="60%">
+      <stop offset="0%" stop-color="#fff3c4"/>
+      <stop offset="55%" stop-color="#E87722"/>
+      <stop offset="100%" stop-color="#b1410c"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="280" r="210" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.18"/>
+  <circle cx="300" cy="280" r="170" fill="none" stroke="#C9A227" stroke-width="1" opacity="0.10"/>
+  <ellipse cx="300" cy="225" rx="60" ry="80" fill="url(#flame)" opacity="0.95"/>
+  <ellipse cx="300" cy="240" rx="26" ry="44" fill="#fff7da" opacity="0.85"/>
+  <path d="M180 300 Q300 250 420 300 Q400 360 300 365 Q200 360 180 300 Z" fill="#C9A227"/>
+  <path d="M180 300 Q300 250 420 300 Q400 320 300 322 Q200 320 180 300 Z" fill="#e7c768"/>
+  <ellipse cx="300" cy="300" rx="120" ry="22" fill="#8a6a18" opacity="0.55"/>
+  <g fill="#C9A227" opacity="0.8">
+    <circle cx="170" cy="170" r="2.5"/><circle cx="440" cy="190" r="2"/>
+    <circle cx="430" cy="430" r="2.5"/><circle cx="180" cy="430" r="2"/>
+  </g>
+  <text x="300" y="500" text-anchor="middle" fill="#C9A227" opacity="0.85"
+        font-family="Georgia, serif" font-size="32" letter-spacing="3">POOJA</text>
+</svg>

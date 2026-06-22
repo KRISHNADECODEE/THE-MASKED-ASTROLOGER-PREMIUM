@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Calendar, Clock, User, Phone, Mail, MessageSquare, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPrice } from "@/lib/utils";
@@ -14,8 +15,15 @@ const TIME_SLOTS = [
 interface Service { id: string; title: string; price: number; }
 
 export function BookingForm({ services }: { services: Service[] }) {
+  const searchParams = useSearchParams();
+  const requestedService = searchParams.get("service");
+  const defaultServiceId =
+    requestedService && services.some((s) => s.id === requestedService)
+      ? requestedService
+      : services[1]?.id || "";
+
   const [form, setForm] = useState({
-    serviceId: services[1]?.id || "",
+    serviceId: defaultServiceId,
     name: "", email: "", phone: "",
     dob: "", tob: "", pob: "",
     slot: "", question: "",
@@ -28,11 +36,37 @@ export function BookingForm({ services }: { services: Service[] }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.slot) {
+      toast.error("Please pick a preferred time slot.");
+      return;
+    }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setDone(true);
-    setLoading(false);
-    toast.success("Booking confirmed! You'll receive a WhatsApp confirmation shortly.");
+    try {
+      const res = await fetch("/api/consultation/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          serviceId: form.serviceId,
+          serviceTitle: selectedService?.title,
+          // No date picker yet — default the slot to today; the chosen time is form.slot.
+          slotDate: new Date().toISOString().slice(0, 10),
+          slotTime: form.slot,
+          birthDetails: { dob: form.dob, tob: form.tob, pob: form.pob, question: form.question },
+          amount: selectedService?.price,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Booking failed");
+      setDone(true);
+      toast.success("Booking confirmed! You'll receive a WhatsApp confirmation shortly.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Booking failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (done) {

@@ -80,7 +80,7 @@ export default function DonationPage() {
     }, 0);
   };
 
-  const handleDonateSubmit = (e: React.FormEvent) => {
+  const handleDonateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const totalCost = calculateTotal();
 
@@ -89,10 +89,24 @@ export default function DonationPage() {
       return;
     }
 
+    const pledgedItems = Object.entries(selectedItems)
+      .filter(([, qty]) => qty > 0)
+      .map(([id, qty]) => {
+        const item = DONATION_ITEMS.find((di) => di.id === id)!;
+        return { id, name: item.name, quantity: qty, cost: item.cost * qty };
+      });
+
     setIsProcessing(true);
     toast.loading("Initiating secure donation gate...", { id: "donate" });
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/donate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: pledgedItems, donorName, total: totalCost }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Donation failed");
       toast.success("Thank you for your generous donation!", { id: "donate" });
 
       // Create new transparency log entries for the items donated
@@ -118,8 +132,11 @@ export default function DonationPage() {
       setLogs((prev) => [...newLogs, ...prev]);
       setSelectedItems({});
       setDonorName("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Donation failed", { id: "donate" });
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -128,7 +145,7 @@ export default function DonationPage() {
         {/* Header Hero Banner */}
         <section
           className="relative rounded-3xl overflow-hidden mb-12 p-8 md:p-12 text-center"
-          style={{ background: "linear-gradient(180deg, var(--color-midnight) 0%, var(--color-midnight-800) 100%)" }}
+          style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}
         >
           <MandalaBackground />
           <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center gap-4">

@@ -57,7 +57,7 @@ export function TestimonialsCarousel({ testimonials }: { testimonials: Testimoni
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                 style={{
-                  background: "linear-gradient(135deg, var(--color-midnight), var(--color-midnight-800))",
+                  background: "linear-gradient(135deg, var(--color-cosmic), var(--color-cosmic-800))",
                   color: "var(--color-gold)",
                 }}
               >
