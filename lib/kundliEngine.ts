@@ -1,143 +1,204 @@
-import { MOCK_KUNDLI, ZODIAC_SIGNS, type KundliResult, type DashaPeriod } from "@/data/kundli";
+import { Origin, Horoscope } from "circular-natal-horoscope-js";
+import { ZODIAC_SIGNS, type KundliResult, type DashaPeriod, type PlanetData } from "@/data/kundli";
 
 export interface KundliInputLite {
   name: string;
   dob: string; // yyyy-mm-dd
-  tob: string; // HH:MM
+  tob: string; // HH:MM (local clock time at the birth place)
   pob: string;
+  lat?: number;
+  lng?: number;
+  tzOffsetHours?: number; // birth-place timezone offset; default IST (+5.5)
 }
 
-function seed(str: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return Math.abs(h);
-}
+// ── Vedic reference data ────────────────────────────────────
+const PLANET_SYMBOL: Record<string, string> = {
+  Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃",
+  Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
+};
 
-const SIGN = (i: number) => ZODIAC_SIGNS[((i % 12) + 12) % 12];
+const NAKSHATRAS = [
+  "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu",
+  "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta",
+  "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha",
+  "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada",
+  "Uttara Bhadrapada", "Revati",
+];
 
-// Vedic (sidereal) sun-sign by date — the Hindu solar calendar ranges.
-function sunSignIndex(dob: string): number {
-  const d = new Date(dob);
-  if (isNaN(d.getTime())) return 0;
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  const ranges: [number, number, number, number][] = [
-    [4, 14, 5, 14],   // Aries
-    [5, 15, 6, 14],   // Taurus
-    [6, 15, 7, 14],   // Gemini
-    [7, 15, 8, 14],   // Cancer
-    [8, 15, 9, 15],   // Leo
-    [9, 16, 10, 15],  // Virgo
-    [10, 16, 11, 14], // Libra
-    [11, 15, 12, 14], // Scorpio
-    [12, 15, 1, 13],  // Sagittarius
-    [1, 14, 2, 12],   // Capricorn
-    [2, 13, 3, 13],   // Aquarius
-    [3, 14, 4, 13],   // Pisces
-  ];
-  for (let i = 0; i < 12; i++) {
-    const [sm, sd, em, ed] = ranges[i];
-    if (sm <= em) {
-      if ((m === sm && day >= sd) || (m === em && day <= ed) || (m > sm && m < em)) return i;
-    } else {
-      // wraps year-end (Sagittarius)
-      if ((m === sm && day >= sd) || (m === em && day <= ed) || m > sm || m < em) return i;
-    }
-  }
-  return 0;
-}
-
-// Vimshottari maha-dasha order and durations (years), total 120.
-const VIMSHOTTARI: { planet: string; years: number }[] = [
+// Vimshottari maha-dasha lords (Ashwini → Ketu) and their durations (years).
+const DASHA_SEQ: { planet: string; years: number }[] = [
   { planet: "Ketu", years: 7 }, { planet: "Venus", years: 20 }, { planet: "Sun", years: 6 },
   { planet: "Moon", years: 10 }, { planet: "Mars", years: 7 }, { planet: "Rahu", years: 18 },
   { planet: "Jupiter", years: 16 }, { planet: "Saturn", years: 19 }, { planet: "Mercury", years: 17 },
 ];
 
-function buildDashas(dob: string, startIdx: number): DashaPeriod[] {
-  const birth = new Date(dob);
-  const baseYear = isNaN(birth.getTime()) ? 1990 : birth.getFullYear();
+const SIGN = (i: number) => ZODIAC_SIGNS[((i % 12) + 12) % 12];
+const norm360 = (x: number) => ((x % 360) + 360) % 360;
+
+function nakshatraOf(siderealLong: number): { name: string; pada: number; index: number; frac: number } {
+  const span = 360 / 27; // 13.3333°
+  const index = Math.floor(siderealLong / span) % 27;
+  const within = siderealLong - index * span;
+  const pada = Math.floor(within / (span / 4)) + 1;
+  return { name: NAKSHATRAS[index], pada, index, frac: within / span };
+}
+
+// Lahiri ayanamsa (deg) for a given Julian Day — used only for Rahu/Ketu nodes.
+function lahiriAyanamsa(jd: number): number {
+  const yearsFromJ2000 = (jd - 2451545.0) / 365.25;
+  return 23.8531 + 0.0139689 * yearsFromJ2000;
+}
+
+function meanLunarNodeSidereal(jd: number): number {
+  const T = (jd - 2451545.0) / 36525;
+  const omega = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + (T * T * T) / 450000; // tropical
+  return norm360(norm360(omega) - lahiriAyanamsa(jd));
+}
+
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+function addYears(d: Date, years: number): Date {
+  return new Date(d.getTime() + years * 365.2425 * 86400000);
+}
+
+function buildDashas(moonLong: number, birth: Date): DashaPeriod[] {
+  const nak = nakshatraOf(moonLong);
+  const startIdx = nak.index % 9;
   const out: DashaPeriod[] = [];
-  let cursor = baseYear;
-  const now = new Date().getFullYear();
+  let cursor = new Date(birth.getTime());
+  const now = Date.now();
   for (let i = 0; i < 9; i++) {
-    const d = VIMSHOTTARI[(startIdx + i) % 9];
-    const end = cursor + d.years;
+    const lord = DASHA_SEQ[(startIdx + i) % 9];
+    // First period is the *balance* of the running dasha at birth.
+    const years = i === 0 ? lord.years * (1 - nak.frac) : lord.years;
+    const end = addYears(cursor, years);
     out.push({
-      planet: d.planet,
-      startDate: `${cursor}-01-01`,
-      endDate: `${end}-01-01`,
-      years: d.years,
-      isCurrent: now >= cursor && now < end,
+      planet: lord.planet,
+      startDate: isoDate(cursor),
+      endDate: isoDate(end),
+      years: Math.round(years * 10) / 10,
+      isCurrent: now >= cursor.getTime() && now < end.getTime(),
     });
     cursor = end;
-    if (cursor > baseYear + 120) break;
   }
   return out;
 }
 
+function computeYogas(byName: Record<string, PlanetData>, ascIdx: number) {
+  const yogas: { name: string; description: string; isPositive: boolean }[] = [];
+  const sign = (p?: PlanetData) => (p ? ZODIAC_SIGNS.findIndex((z) => z.name === p.sign) : -1);
+  const sun = byName.Sun, moon = byName.Moon, mer = byName.Mercury, jup = byName.Jupiter, mars = byName.Mars;
+
+  if (sun && mer && sign(sun) === sign(mer)) {
+    yogas.push({ name: "Budha-Aditya Yoga", description: "Sun and Mercury together grant sharp intellect, communication skill and success in study and trade.", isPositive: true });
+  }
+  if (moon && jup) {
+    const diff = ((sign(jup) - sign(moon) + 12) % 12) + 1;
+    if ([1, 4, 7, 10].includes(diff)) {
+      yogas.push({ name: "Gajakesari Yoga", description: "Jupiter in a kendra from the Moon bestows wisdom, reputation and steady prosperity.", isPositive: true });
+    }
+  }
+  if (moon && mars && sign(moon) === sign(mars)) {
+    yogas.push({ name: "Chandra-Mangal Yoga", description: "Moon with Mars drives ambition and the capacity to generate wealth through enterprise.", isPositive: true });
+  }
+  if (yogas.length === 0) {
+    yogas.push({ name: `${SIGN(ascIdx).name} Lagna`, description: `A ${SIGN(ascIdx).ruling}-ruled ascendant shapes the core temperament and life path of the chart.`, isPositive: true });
+  }
+  return yogas;
+}
+
+function niceDob(dob: string): string {
+  const d = new Date(dob);
+  return isNaN(d.getTime()) ? dob : d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+}
+
 /**
- * Deterministically derive a believable Vedic kundli from birth details.
- * (A production build would call the Swiss-Ephemeris service in
- * app/api/kundli/generate; this gives consistent, varied demo charts.)
+ * Compute a real Vedic (sidereal / Lahiri) birth chart from birth details.
+ * Uses an ephemeris (circular-natal-horoscope-js) for planet & ascendant
+ * positions; nakshatras, Rahu/Ketu and the Vimshottari dasha are derived here.
  */
 export function computeKundli(input: KundliInputLite): KundliResult {
-  const s = seed(`${input.dob}|${input.tob}|${input.name}`);
-  const sunIdx = sunSignIndex(input.dob);
+  const lat = input.lat ?? 28.6139; // default New Delhi
+  const lng = input.lng ?? 77.209;
+  const tz = input.tzOffsetHours ?? 5.5; // default IST
 
-  // Lagna ≈ sun sign at sunrise, advancing ~1 sign / 2 hours.
-  const [hh] = (input.tob || "06:00").split(":").map(Number);
-  const ascIdx = (sunIdx + Math.floor(((hh || 6)) / 2)) % 12;
-  const moonIdx = (sunIdx + (s % 12)) % 12;
+  try {
+    const [y, mo, da] = input.dob.split("-").map(Number);
+    const [hh, mm] = (input.tob || "12:00").split(":").map(Number);
 
-  const asc = SIGN(ascIdx);
-  const moon = SIGN(moonIdx);
-  const sun = SIGN(sunIdx);
+    // True UTC instant of birth, then express it as local-mean-time at the
+    // birth longitude (the form the library expects: UTC = input − lng/15).
+    const trueUtcMs = Date.UTC(y, (mo || 1) - 1, da || 1, hh || 0, mm || 0) - tz * 3600000;
+    const libMs = trueUtcMs + (lng / 15) * 3600000;
+    const L = new Date(libMs);
 
-  // Re-home each planet around the computed ascendant with a stable offset.
-  const planets = MOCK_KUNDLI.planets.map((p, i) => {
-    const signIdx = (ascIdx + ((s >> (i * 2)) % 12)) % 12;
-    const sign = SIGN(signIdx);
-    const house = (((signIdx - ascIdx) % 12) + 12) % 12 + 1;
-    return {
-      ...p,
-      sign: sign.name,
-      signSymbol: sign.symbol,
-      house,
-      degree: Number((((s >> (i * 3)) % 3000) / 100).toFixed(2)),
+    const origin = new Origin({
+      year: L.getUTCFullYear(), month: L.getUTCMonth(), date: L.getUTCDate(),
+      hour: L.getUTCHours(), minute: L.getUTCMinutes(), latitude: lat, longitude: lng,
+    });
+    const h = new Horoscope({ origin, houseSystem: "whole-sign", zodiac: "sidereal", aspectPoints: [], aspectWithPoints: [], language: "en" });
+
+    const jd = trueUtcMs / 86400000 + 2440587.5;
+    const ascLong = h.Ascendant.ChartPosition.Ecliptic.DecimalDegrees as number;
+    const ascIdx = Math.floor(norm360(ascLong) / 30);
+
+    const order = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+    const key: Record<string, string> = { Sun: "sun", Moon: "moon", Mars: "mars", Mercury: "mercury", Jupiter: "jupiter", Venus: "venus", Saturn: "saturn" };
+
+    const mkPlanet = (name: string, long: number, retro: boolean): PlanetData => {
+      const sLong = norm360(long);
+      const sIdx = Math.floor(sLong / 30);
+      const nak = nakshatraOf(sLong);
+      return {
+        name, symbol: PLANET_SYMBOL[name], house: ((sIdx - ascIdx + 12) % 12) + 1,
+        sign: SIGN(sIdx).name, signSymbol: SIGN(sIdx).symbol, degree: Math.round((sLong % 30) * 100) / 100,
+        isRetrograde: !!retro, nakshatra: nak.name, nakshatraPada: nak.pada,
+      };
     };
-  });
 
-  const dashas = buildDashas(input.dob, s % 9);
-  const current = dashas.find((d) => d.isCurrent);
+    const planets: PlanetData[] = order.map((n) => {
+      const b = h.CelestialBodies[key[n]];
+      return mkPlanet(n, b.ChartPosition.Ecliptic.DecimalDegrees as number, !!b.isRetrograde);
+    });
+    // Rahu / Ketu (mean lunar node) — always retrograde.
+    const rahu = meanLunarNodeSidereal(jd);
+    planets.push(mkPlanet("Rahu", rahu, true));
+    planets.push(mkPlanet("Ketu", norm360(rahu + 180), true));
 
-  const dobNice = (() => {
-    const d = new Date(input.dob);
-    return isNaN(d.getTime()) ? input.dob : d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-  })();
+    const byName: Record<string, PlanetData> = Object.fromEntries(planets.map((p) => [p.name, p]));
+    const moonLong = norm360(h.CelestialBodies.moon.ChartPosition.Ecliptic.DecimalDegrees as number);
+    const dashas = buildDashas(moonLong, new Date(Date.UTC(y, (mo || 1) - 1, da || 1)));
+    const current = dashas.find((d) => d.isCurrent);
+    const moonNak = nakshatraOf(moonLong);
 
-  const firstName = input.name.split(" ")[0] || "Seeker";
-  const prediction =
-    `With ${asc.name} Lagna (ascendant) and the Moon in ${moon.name}, ${firstName} carries the core nature of a ${asc.ruling}-ruled chart. ` +
-    (current ? `The current ${current.planet} Mahadasha (until ${current.endDate.slice(0, 4)}) shapes this life phase — align major decisions with ${current.planet}'s themes. ` : "") +
-    `The Sun in ${sun.name} colours identity and vitality, while planetary placements across the 12 bhavas indicate the unfolding of career, relationships, and dharma. Follow the suggested remedies to strengthen weak grahas.`;
+    const firstName = input.name.split(" ")[0] || "Seeker";
+    const prediction =
+      `${firstName} is born with ${SIGN(ascIdx).name} Lagna (ascendant), ruled by ${SIGN(ascIdx).ruling}, with the Moon in ${byName.Moon.sign} (${moonNak.name} nakshatra). ` +
+      (current ? `The current ${current.planet} Mahadasha (until ${current.endDate.slice(0, 4)}) sets the dominant theme of this life phase — align key decisions with ${current.planet}'s significations. ` : "") +
+      `The Sun in ${byName.Sun.sign} shapes vitality and self-expression. Study the house placements of the nine grahas below for career, relationships and dharma, and apply the suggested remedies for any afflicted planet.`;
 
-  return {
-    name: input.name,
-    dob: dobNice,
-    tob: input.tob,
-    pob: input.pob,
-    ascendant: asc.name,
-    ascendantDegree: Number(((s % 3000) / 100).toFixed(2)),
-    ascendantSymbol: asc.symbol,
-    moonSign: moon.name,
-    sunSign: sun.name,
-    planets,
-    dashas,
-    yogas: MOCK_KUNDLI.yogas,
-    basicPrediction: prediction,
-  };
+    return {
+      name: input.name,
+      dob: niceDob(input.dob),
+      tob: input.tob,
+      pob: input.pob,
+      ascendant: SIGN(ascIdx).name,
+      ascendantDegree: Math.round((norm360(ascLong) % 30) * 100) / 100,
+      ascendantSymbol: SIGN(ascIdx).symbol,
+      moonSign: byName.Moon.sign,
+      sunSign: byName.Sun.sign,
+      planets,
+      dashas,
+      yogas: computeYogas(byName, ascIdx),
+      basicPrediction: prediction,
+    };
+  } catch {
+    // Never break the UI — fall back to a minimal chart if computation fails.
+    return {
+      name: input.name, dob: niceDob(input.dob), tob: input.tob, pob: input.pob,
+      ascendant: "Aries", ascendantDegree: 0, ascendantSymbol: "♈", moonSign: "Aries", sunSign: "Aries",
+      planets: [], dashas: [], yogas: [], basicPrediction: "Could not compute the chart — please re-check the birth date, time and place.",
+    };
+  }
 }

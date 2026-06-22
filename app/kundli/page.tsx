@@ -24,10 +24,10 @@ export default function KundliPage() {
     return ZODIAC_SIGNS.find((z) => z.name.toLowerCase() === name.toLowerCase())?.symbol || "✦";
   };
 
-  const handleGenerate = async (formData: { name: string; dob: string; tob: string; pob: string }) => {
+  const handleGenerate = async (formData: { name: string; dob: string; tob: string; pob: string; lat?: number; lng?: number }) => {
     setLoading(true);
-    // Deterministic Vedic chart from the birth details (production: /api/kundli/generate).
-    await new Promise((r) => setTimeout(r, 2000));
+    // Real sidereal (Lahiri) Vedic chart computed from the birth details + coordinates.
+    await new Promise((r) => setTimeout(r, 1200));
     setKundli(computeKundli(formData));
     setLoading(false);
   };

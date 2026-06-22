@@ -34,9 +34,10 @@ function LoginContent() {
     }
   }, [searchParams]);
 
+  // Use the real browser origin first so OAuth/magic-link redirects always land
+  // back on the current deployment (not a stale NEXT_PUBLIC_SITE_URL).
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (typeof window !== "undefined" ? window.location.origin : "");
+    (typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL) || "";
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
