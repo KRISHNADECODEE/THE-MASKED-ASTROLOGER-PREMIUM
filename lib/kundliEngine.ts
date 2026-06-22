@@ -108,6 +108,47 @@ function computeYogas(byName: Record<string, PlanetData>, ascIdx: number) {
   return yogas;
 }
 
+// ── Shared ephemeris helpers (used by Gun Milan & Rashifal) ──────────────
+// Geocentric sidereal longitudes are location-independent, so we pass lat/lng 0
+// and feed the true UTC instant directly (library UTC = input − lng/15 = input).
+function siderealBodies(utcMs: number, keys: string[]): Record<string, number> {
+  const d = new Date(utcMs);
+  const origin = new Origin({
+    year: d.getUTCFullYear(), month: d.getUTCMonth(), date: d.getUTCDate(),
+    hour: d.getUTCHours(), minute: d.getUTCMinutes(), latitude: 0, longitude: 0,
+  });
+  const h = new Horoscope({ origin, houseSystem: "whole-sign", zodiac: "sidereal", aspectPoints: [], aspectWithPoints: [], language: "en" });
+  const out: Record<string, number> = {};
+  for (const k of keys) out[k] = norm360(h.CelestialBodies[k].ChartPosition.Ecliptic.DecimalDegrees as number);
+  return out;
+}
+
+export interface MoonInfo {
+  rashiIndex: number;   // 0 = Mesha/Aries
+  nakshatraIndex: number; // 0 = Ashwini
+  nakshatra: string;
+  pada: number;
+  longitude: number;    // sidereal
+}
+
+/** The Moon's sidereal Rashi + Nakshatra at birth — the basis of Gun Milan. */
+export function moonRashiNakshatra(dob: string, tob: string, tzOffsetHours = 5.5): MoonInfo {
+  const [y, mo, da] = dob.split("-").map(Number);
+  const [hh, mm] = (tob || "12:00").split(":").map(Number);
+  const utc = Date.UTC(y, (mo || 1) - 1, da || 1, hh || 0, mm || 0) - tzOffsetHours * 3600000;
+  const moon = siderealBodies(utc, ["moon"]).moon;
+  const nak = nakshatraOf(moon);
+  return { rashiIndex: Math.floor(moon / 30), nakshatraIndex: nak.index, nakshatra: nak.name, pada: nak.pada, longitude: moon };
+}
+
+/** Today's transiting sidereal positions (Gochara) — basis of the Rashifal. */
+export function getGochara(date: Date = new Date()): Record<string, { sign: number; long: number }> {
+  const bodies = siderealBodies(date.getTime(), ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn"]);
+  const out: Record<string, { sign: number; long: number }> = {};
+  for (const [k, v] of Object.entries(bodies)) out[k] = { sign: Math.floor(v / 30), long: v };
+  return out;
+}
+
 function niceDob(dob: string): string {
   const d = new Date(dob);
   return isNaN(d.getTime()) ? dob : d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
