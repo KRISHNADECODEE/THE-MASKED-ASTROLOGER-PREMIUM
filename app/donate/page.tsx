@@ -149,9 +149,9 @@ export default function DonationPage() {
         >
           <MandalaBackground />
           <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center gap-4">
-            <div className="text-4xl animate-bounce">🐾</div>
+            <div className="text-4xl animate-bounce">❤️</div>
             <p className="section-eyebrow" style={{ color: "#E87722" }}>
-              100% Transparent Street Dog Care
+              100% Transparent · Item-Based Giving
             </p>
             <h1
               style={{
@@ -161,12 +161,12 @@ export default function DonationPage() {
                 lineHeight: 1.1,
               }}
             >
-              Feed & Protect Street Dogs
+              Give Food, Books &amp; Care
             </h1>
             <p className="text-sm" style={{ color: "rgba(253,233,207,0.6)", fontFamily: "var(--font-body)", lineHeight: 1.6 }}>
-              In Vedic culture, feeding animals (especially dogs, associated with Lord Bhairava & Rahu remediation) 
-              is a powerful karmic practice. We maintain total transparency: we buy food/supplies and post photos 
-              of the distribution.
+              In Vedic culture, daan (selfless giving) — feeding street dogs, serving the hungry, and educating a
+              child — is a powerful karmic practice. Choose exactly what you want to give. We maintain total
+              transparency: we buy the items and post photos of every distribution.
             </p>
           </div>
         </section>
@@ -203,7 +203,10 @@ export default function DonationPage() {
                           {formatPrice(item.cost)}
                         </span>
                       </div>
-                      <h3 className="font-semibold text-sm mt-3" style={{ color: "#0F0A1E", fontFamily: "var(--font-body)" }}>
+                      <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mt-3" style={{ background: "rgba(209,168,110,0.14)", color: "var(--color-gold-dark)" }}>
+                        {item.category}
+                      </span>
+                      <h3 className="font-semibold text-sm mt-2" style={{ color: "#0F0A1E", fontFamily: "var(--font-body)" }}>
                         {item.name}
                       </h3>
                       <p className="text-xs mt-1" style={{ color: "rgba(15,10,30,0.5)", fontFamily: "var(--font-body)" }}>

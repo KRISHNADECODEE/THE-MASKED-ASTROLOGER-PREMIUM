@@ -269,11 +269,29 @@ export const BLOG_POSTS = [
   },
 ];
 
-export const DONATION_ITEMS = [
-  { id: "d-1", name: "Dog Food Bag (5kg)", emoji: "🦴", cost: 350, description: "Premium dry kibble for adult street dogs" },
-  { id: "d-2", name: "Vaccination Kit", emoji: "💉", cost: 800, description: "Core vaccines: Distemper, Parvovirus, Rabies" },
-  { id: "d-3", name: "Winter Blanket", emoji: "🛏️", cost: 200, description: "Warm fleece blanket for cold nights" },
-  { id: "d-4", name: "Anti-Tick Collar", emoji: "🔴", cost: 150, description: "3-month anti-tick & flea collar" },
-  { id: "d-5", name: "First Aid Kit", emoji: "🏥", cost: 500, description: "Basic wound care & antiseptic kit" },
-  { id: "d-6", name: "Water Bowl (Steel)", emoji: "💧", cost: 120, description: "Heavy-duty steel water bowl" },
+export type DonationCategory = "Street Dogs" | "People in Need" | "Education";
+
+export const DONATION_ITEMS: {
+  id: string;
+  name: string;
+  emoji: string;
+  cost: number;
+  description: string;
+  category: DonationCategory;
+}[] = [
+  // ── Street Dogs ──
+  { id: "d-1",  name: "Food for a Street Dog",   emoji: "🐕", cost: 350, description: "5 kg premium kibble to feed adult street dogs",        category: "Street Dogs" },
+  { id: "d-2",  name: "Dog Vaccination Kit",     emoji: "💉", cost: 800, description: "Core vaccines: Distemper, Parvovirus, Rabies",          category: "Street Dogs" },
+  { id: "d-3",  name: "Anti-Tick Collar",        emoji: "🔴", cost: 150, description: "3-month anti-tick & flea protection collar",            category: "Street Dogs" },
+  { id: "d-4",  name: "Dog First-Aid Kit",       emoji: "🏥", cost: 500, description: "Wound care & antiseptic kit for injured strays",        category: "Street Dogs" },
+
+  // ── People in Need ──
+  { id: "d-5",  name: "Meal for the Hungry",     emoji: "🍱", cost: 60,  description: "A hot, nutritious meal for one person in need",         category: "People in Need" },
+  { id: "d-6",  name: "Ration Kit for a Family", emoji: "🛒", cost: 700, description: "Rice, dal, flour & oil to feed a family for a week",    category: "People in Need" },
+  { id: "d-7",  name: "Warm Blanket",            emoji: "🛏️", cost: 250, description: "A warm blanket for someone sleeping rough this winter", category: "People in Need" },
+  { id: "d-8",  name: "Clean Water for a Day",   emoji: "💧", cost: 100, description: "Safe drinking water for a person for one full day",     category: "People in Need" },
+
+  // ── Education ──
+  { id: "d-9",  name: "Donate a Book",           emoji: "📚", cost: 250, description: "A storybook or textbook for an underprivileged child",  category: "Education" },
+  { id: "d-10", name: "School Supplies Kit",     emoji: "✏️", cost: 300, description: "Notebooks, pencils & a bag for one student",            category: "Education" },
 ];
