@@ -8,6 +8,9 @@ export interface PartnerInput {
   dob: string; // yyyy-mm-dd
   tob: string;
   pob: string;
+  lat?: number;
+  lng?: number;
+  tzOffsetHours?: number; // defaults to IST +5.5 if not provided
 }
 
 export interface Koota {
@@ -103,8 +106,8 @@ function nadiKoota(boyN: number, girlN: number): number {
 }
 
 export function calculateGunMilan(boy: PartnerInput, girl: PartnerInput): GunMilanResult {
-  const b = moonRashiNakshatra(boy.dob, boy.tob);
-  const g = moonRashiNakshatra(girl.dob, girl.tob);
+  const b = moonRashiNakshatra(boy.dob, boy.tob, boy.tzOffsetHours ?? 5.5);
+  const g = moonRashiNakshatra(girl.dob, girl.tob, girl.tzOffsetHours ?? 5.5);
   const bN = b.nakshatraIndex, gN = g.nakshatraIndex, bR = b.rashiIndex, gR = g.rashiIndex;
 
   const kootas: Koota[] = [

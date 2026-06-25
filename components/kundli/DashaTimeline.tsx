@@ -1,4 +1,5 @@
 import type { KundliResult } from "@/data/kundli";
+import { VedicTerm } from "@/components/VedicTerm";
 
 const DASHA_YEARS: Record<string, number> = {
   Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16,
@@ -20,7 +21,7 @@ export function DashaTimeline({ kundli }: { kundli: KundliResult }) {
         className="mb-2"
         style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--color-midnight)" }}
       >
-        Vimshottari Dasha Timeline
+        <VedicTerm term="Vimshottari">Vimshottari</VedicTerm> <VedicTerm term="Mahadasha">Dasha</VedicTerm> Timeline
       </h3>
       <p className="text-xs mb-6" style={{ color: "rgba(45, 41, 38, 0.5)", fontFamily: "var(--font-body)" }}>
         Planetary ruling periods that govern different phases of life.
@@ -77,7 +78,7 @@ export function DashaTimeline({ kundli }: { kundli: KundliResult }) {
                       className="font-semibold text-sm"
                       style={{ color: d.isCurrent ? color : "var(--color-midnight)", fontFamily: "var(--font-body)" }}
                     >
-                      {d.planet} Mahadasha
+                      {d.planet} <VedicTerm term="Mahadasha">Mahadasha</VedicTerm>
                     </span>
                     {d.isCurrent && (
                       <span

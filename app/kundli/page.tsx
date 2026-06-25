@@ -14,6 +14,7 @@ import { KundliResultSkeleton } from "@/components/ui/Skeleton";
 import { Download, Share2, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { VedicTerm } from "@/components/VedicTerm";
 
 export default function KundliPage() {
   const [kundli, setKundli]   = useState<KundliResult | null>(null);
@@ -127,16 +128,16 @@ export default function KundliPage() {
                 </p>
                 <div className="flex flex-wrap gap-3 mt-3">
                   {[
-                    { label: "Ascendant", value: `${kundli.ascendantSymbol} ${kundli.ascendant}` },
-                    { label: "Moon Sign", value: `${getZodiacSymbol(kundli.moonSign)} ${kundli.moonSign}` },
-                    { label: "Sun Sign",  value: `${getZodiacSymbol(kundli.sunSign)} ${kundli.sunSign}` },
-                  ].map(({ label, value }) => (
+                    { label: "Ascendant", term: "Lagna", value: `${kundli.ascendantSymbol} ${kundli.ascendant}` },
+                    { label: "Moon Sign", term: "Rashi", value: `${getZodiacSymbol(kundli.moonSign)} ${kundli.moonSign}` },
+                    { label: "Sun Sign",  term: "Surya", value: `${getZodiacSymbol(kundli.sunSign)} ${kundli.sunSign}` },
+                  ].map(({ label, term, value }) => (
                     <div
                       key={label}
                       className="px-3 py-1.5 rounded-lg"
                       style={{ background: "rgba(209,168,110,0.1)", border: "1px solid rgba(209,168,110,0.2)" }}
                     >
-                      <span className="text-xs" style={{ color: "rgba(250,245,237,0.4)", fontFamily: "var(--font-body)" }}>{label}: </span>
+                      <span className="text-xs" style={{ color: "rgba(250,245,237,0.4)", fontFamily: "var(--font-body)" }}><VedicTerm term={term}>{label}</VedicTerm>: </span>
                       <span className="text-xs font-bold" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>{value}</span>
                     </div>
                   ))}

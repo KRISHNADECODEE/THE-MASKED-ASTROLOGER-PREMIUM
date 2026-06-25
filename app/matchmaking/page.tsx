@@ -1,39 +1,110 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { calculateGunMilan, type GunMilanResult, type PartnerInput } from "@/lib/gunMilan";
-import { Heart, RefreshCcw, User, Sparkles, ChevronRight } from "lucide-react";
+import { Heart, RefreshCcw, User, Sparkles, ChevronRight, MapPin } from "lucide-react";
 
-const EMPTY: PartnerInput = { name: "", dob: "", tob: "", pob: "" };
+const EMPTY: PartnerInput = { name: "", dob: "", tob: "", pob: "", lat: 28.6139, lng: 77.209, tzOffsetHours: 5.5 };
+
+const roundHalf = (n: number) => Math.round(n * 2) / 2;
+
+interface Place { name: string; lat: number; lng: number; tz: number }
+
+function PlaceSearch({ value, onChange }: { value: PartnerInput; onChange: (v: PartnerInput) => void }) {
+  const [query, setQuery] = useState("");
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 3) { setPlaces([]); return; }
+    if (ref.current) clearTimeout(ref.current);
+    ref.current = setTimeout(async () => {
+      try {
+        setBusy(true);
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(q)}`,
+          { headers: { Accept: "application/json" } }
+        );
+        const data = (await res.json()) as { lat: string; lon: string; display_name: string; address?: { country_code?: string } }[];
+        setPlaces(data.map((d) => {
+          const lng = parseFloat(d.lon);
+          return { name: d.display_name, lat: parseFloat(d.lat), lng, tz: d.address?.country_code === "in" ? 5.5 : roundHalf(lng / 15) };
+        }));
+      } catch { setPlaces([]); } finally { setBusy(false); }
+    }, 450);
+  }, [query]);
+
+  return (
+    <div>
+      <label className="block text-xs font-semibold mb-1" style={{ color: "rgba(45,41,38,0.6)" }}>Place of Birth *</label>
+      <div className="relative">
+        <div className="relative">
+          <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(45,41,38,0.3)" }} />
+          <input
+            type="text"
+            value={query || value.pob}
+            onChange={(e) => { setQuery(e.target.value); onChange({ ...value, pob: e.target.value }); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+            placeholder="Search city…"
+            className="input-field w-full pl-9"
+          />
+        </div>
+        {open && query.trim().length >= 3 && (
+          <div className="absolute z-20 left-0 right-0 top-full mt-1 rounded-xl overflow-hidden shadow-xl max-h-60 overflow-y-auto" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
+            {busy && <div className="px-3 py-2 text-xs" style={{ color: "rgba(45,41,38,0.45)" }}>Searching…</div>}
+            {!busy && places.length === 0 && <div className="px-3 py-2 text-xs" style={{ color: "rgba(45,41,38,0.45)" }}>No matches — try full city name.</div>}
+            {places.map((p, i) => (
+              <button key={i} type="button" className="w-full text-left px-3 py-2.5 text-xs flex items-start gap-2 transition-all"
+                style={{ color: "var(--color-midnight)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--color-parchment)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; }}
+                onClick={() => { onChange({ ...value, pob: p.name, lat: p.lat, lng: p.lng, tzOffsetHours: p.tz }); setQuery(""); setOpen(false); }}
+              >
+                <MapPin size={11} style={{ color: "var(--color-gold)", flexShrink: 0, marginTop: 2 }} />
+                <span className="leading-snug">{p.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {value.pob && !query && (
+        <p className="text-[10px] mt-1" style={{ color: "rgba(45,41,38,0.4)", fontFamily: "var(--font-mono)" }}>
+          {value.lat?.toFixed(3)}°, {value.lng?.toFixed(3)}° · GMT{(value.tzOffsetHours ?? 5.5) >= 0 ? "+" : ""}{value.tzOffsetHours ?? 5.5}
+        </p>
+      )}
+    </div>
+  );
+}
 
 function PartnerForm({
   label, accent, value, onChange,
 }: { label: string; accent: string; value: PartnerInput; onChange: (v: PartnerInput) => void }) {
-  const set = (k: keyof PartnerInput, v: string) => onChange({ ...value, [k]: v });
   return (
     <div className="rounded-2xl p-6 flex flex-col gap-4" style={{ background: "var(--color-ivory)", border: `1.5px solid ${accent}` }}>
       <div className="flex items-center gap-2">
         <span className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: `${accent}22`, color: accent }}><User size={16} /></span>
         <h3 className="font-semibold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-display)", fontSize: "1.1rem" }}>{label}</h3>
       </div>
-      <Field label="Full Name" value={value.name} onChange={(v) => set("name", v)} placeholder="Name" type="text" />
-      <Field label="Date of Birth" value={value.dob} onChange={(v) => set("dob", v)} type="date" />
-      <Field label="Time of Birth" value={value.tob} onChange={(v) => set("tob", v)} type="time" />
-      <Field label="Place of Birth" value={value.pob} onChange={(v) => set("pob", v)} placeholder="City, Country" type="text" />
-    </div>
-  );
-}
 
-function Field({ label, value, onChange, placeholder, type }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type: string }) {
-  return (
-    <div>
-      <label className="block text-xs font-semibold mb-1" style={{ color: "rgba(45,41,38,0.6)" }}>{label}</label>
-      <input type={type} required value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        max={type === "date" ? new Date().toISOString().split("T")[0] : undefined}
-        className="input-field w-full" />
+      <div>
+        <label className="block text-xs font-semibold mb-1" style={{ color: "rgba(45,41,38,0.6)" }}>Full Name *</label>
+        <input type="text" required value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} placeholder="Name" className="input-field w-full" />
+      </div>
+      <div>
+        <label className="block text-xs font-semibold mb-1" style={{ color: "rgba(45,41,38,0.6)" }}>Date of Birth *</label>
+        <input type="date" required value={value.dob} onChange={(e) => onChange({ ...value, dob: e.target.value })} max={new Date().toISOString().split("T")[0]} className="input-field w-full" />
+      </div>
+      <div>
+        <label className="block text-xs font-semibold mb-1" style={{ color: "rgba(45,41,38,0.6)" }}>Time of Birth *</label>
+        <input type="time" required value={value.tob} onChange={(e) => onChange({ ...value, tob: e.target.value })} className="input-field w-full" />
+      </div>
+      <PlaceSearch value={value} onChange={onChange} />
     </div>
   );
 }
@@ -66,7 +137,8 @@ export default function MatchmakingPage() {
           </h1>
           <p className="max-w-xl mx-auto text-base" style={{ color: "rgba(250,245,237,0.55)", fontFamily: "var(--font-body)", lineHeight: 1.7 }}>
             Check marriage compatibility the traditional Vedic way — across all 8 kootas
-            (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot & Nadi).
+            (Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot &amp; Nadi).
+            Birth location is used for accurate Moon sign placement.
           </p>
         </div>
       </section>
@@ -87,7 +159,11 @@ export default function MatchmakingPage() {
         {result && (
           <motion.div id="result" className="mt-14" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
             {/* Score header */}
-            <motion.div className="rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 mb-8" style={{ background: "linear-gradient(135deg, var(--color-cosmic), var(--color-cosmic-800))", border: "1px solid rgba(209,168,110,0.25)" }} initial={{ scale: 0.97 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 22 }}>
+            <motion.div
+              className="rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8 mb-8"
+              style={{ background: "linear-gradient(135deg, var(--color-cosmic), var(--color-cosmic-800))", border: "1px solid rgba(209,168,110,0.25)" }}
+              initial={{ scale: 0.97 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 22 }}
+            >
               <div className="relative flex-shrink-0 w-36 h-36 rounded-full flex items-center justify-center" style={{ background: `conic-gradient(var(--color-gold) ${percent}%, rgba(250,245,237,0.1) ${percent}%)` }}>
                 <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center" style={{ background: "var(--color-midnight)" }}>
                   <span className="text-3xl font-bold" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>{result.total}</span>
@@ -97,9 +173,13 @@ export default function MatchmakingPage() {
               <div className="text-center md:text-left">
                 <span className="badge mb-2 inline-block" style={{ background: "rgba(209,168,110,0.15)", color: result.verdictColor, border: `1px solid ${result.verdictColor}`, fontSize: "0.7rem" }}>{result.verdict}</span>
                 <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.8rem", color: "var(--color-parchment)", marginBottom: "0.5rem" }}>
-                  {boy.name || "Partner 1"} & {girl.name || "Partner 2"}
+                  {boy.name || "Partner 1"} &amp; {girl.name || "Partner 2"}
                 </h2>
                 <p className="text-sm" style={{ color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)", lineHeight: 1.7 }}>{result.summary}</p>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs" style={{ color: "rgba(250,245,237,0.4)", fontFamily: "var(--font-mono)" }}>
+                  {boy.pob && <span>📍 {boy.name}: {boy.pob.split(",")[0]}</span>}
+                  {girl.pob && <span>📍 {girl.name}: {girl.pob.split(",")[0]}</span>}
+                </div>
               </div>
             </motion.div>
 

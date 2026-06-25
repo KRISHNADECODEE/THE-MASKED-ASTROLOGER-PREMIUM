@@ -6,6 +6,7 @@ import { MandalaBackground } from "@/components/MandalaBackground";
 import { RASHIS, TATVA_LABEL, getRashi } from "@/data/rashi";
 import { getDailyHoroscope } from "@/data/horoscope";
 import { Heart, Briefcase, Activity, Sparkles, ChevronRight, Moon } from "lucide-react";
+import { VedicTerm } from "@/components/VedicTerm";
 
 const DATE_RANGES: Record<string, string> = {
   aries: "Mar 21 – Apr 19", taurus: "Apr 20 – May 20", gemini: "May 21 – Jun 20",
@@ -43,7 +44,11 @@ export default function RashifalPage() {
             Daily Rashifal
           </h1>
           <p className="text-sm max-w-xl mx-auto flex items-center justify-center gap-2" style={{ color: "rgba(250,245,237,0.55)", fontFamily: "var(--font-body)" }}>
-            <Moon size={14} /> Vedic predictions based on your <strong className="mx-1" style={{ color: "var(--color-gold)" }}>Chandra Rashi</strong> (Moon sign) · {horo.date}
+            <Moon size={14} /> Vedic predictions based on your{" "}
+            <strong className="mx-1" style={{ color: "var(--color-gold)" }}>
+              <VedicTerm term="Gochara">Chandra</VedicTerm> <VedicTerm term="Rashi">Rashi</VedicTerm>
+            </strong>{" "}
+            (Moon sign) · {horo.date}
           </p>
         </div>
       </section>
