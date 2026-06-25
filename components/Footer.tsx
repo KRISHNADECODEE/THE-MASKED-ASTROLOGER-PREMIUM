@@ -61,7 +61,7 @@ const FOOTER_LINKS = {
   Company: [
     { href: "/about",   label: "About Us" },
     { href: "/contact", label: "Contact Us" },
-    { href: "/donate",  label: "Donate to Street Dogs 🐾" },
+    { href: "/donate",  label: "Donate & Give Back" },
     { href: "/ai-chat", label: "AI Astrologer (Soon)" },
     { href: "/account", label: "My Account" },
   ],

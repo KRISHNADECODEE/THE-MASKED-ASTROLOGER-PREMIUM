@@ -82,7 +82,7 @@ export default function KundliPage() {
         </div>
       </section>
 
-      <div className="container-xl py-16">
+      <div className="container-xl pt-16 pb-32">
 
         {/* ── Form (idle) ── */}
         {!kundli && !loading && (
@@ -104,7 +104,7 @@ export default function KundliPage() {
 
         {/* ── Results ── */}
         {kundli && !loading && (
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
             {/* Result header */}
             <div
               className="rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4"

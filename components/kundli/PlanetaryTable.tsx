@@ -1,5 +1,10 @@
 import type { KundliResult } from "@/data/kundli";
 
+const PLANET_COLOR: Record<string, string> = {
+  Sun: "#F59E0B", Moon: "#94A3B8", Mars: "#EF4444", Mercury: "#22C55E",
+  Jupiter: "#EAB308", Venus: "#EC4899", Saturn: "#6366F1", Rahu: "#78716C", Ketu: "#B45309",
+};
+
 export function PlanetaryTable({ kundli }: { kundli: KundliResult }) {
   return (
     <div>
@@ -35,8 +40,15 @@ export function PlanetaryTable({ kundli }: { kundli: KundliResult }) {
                 }}
               >
                 <td className="px-4 py-3 font-semibold" style={{ color: "var(--color-midnight)" }}>
-                  <span className="mr-2">{p.symbol}</span>
-                  {p.name}
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                      className="inline-flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-bold flex-shrink-0"
+                      style={{ background: PLANET_COLOR[p.name] ?? "#78716C", color: "#fff", letterSpacing: "0.03em" }}
+                    >
+                      {p.symbol}
+                    </span>
+                    {p.name}
+                  </span>
                 </td>
                 <td className="px-4 py-3" style={{ color: "var(--color-midnight)" }}>
                   {p.signSymbol} {p.sign}

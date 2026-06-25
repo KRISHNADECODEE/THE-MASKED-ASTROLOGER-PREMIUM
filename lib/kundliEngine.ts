@@ -13,8 +13,8 @@ export interface KundliInputLite {
 
 // ── Vedic reference data ────────────────────────────────────
 const PLANET_SYMBOL: Record<string, string> = {
-  Sun: "☉", Moon: "☽", Mars: "♂", Mercury: "☿", Jupiter: "♃",
-  Venus: "♀", Saturn: "♄", Rahu: "☊", Ketu: "☋",
+  Sun: "Su", Moon: "Ch", Mars: "Ma", Mercury: "Bu", Jupiter: "Gu",
+  Venus: "Sh", Saturn: "Sa", Rahu: "Rā", Ketu: "Ke",
 };
 
 const NAKSHATRAS = [
