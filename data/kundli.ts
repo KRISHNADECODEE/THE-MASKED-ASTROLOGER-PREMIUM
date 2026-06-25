@@ -28,6 +28,32 @@ export interface DashaPeriod {
   isCurrent: boolean;
 }
 
+export interface ChartPlanet {
+  name: string;
+  symbol: string;
+  house: number; // 1–12 relative to that chart's ascendant
+  sign: string;
+  isRetrograde: boolean;
+}
+export interface VedicChartData {
+  title: string;
+  ascendant: string;
+  ascendantSymbol: string;
+  planets: ChartPlanet[];
+}
+
+export interface Avakhada {
+  varna: string; vashya: string; yoni: string; gana: string; nadi: string;
+  sign: string; signLord: string; nakshatra: string; charan: number; tatva: string;
+  nameAlphabet: string; paya: string; tithi: string; yunja: string;
+}
+
+export interface Panchang {
+  tithi: string; paksha: string; yoga: string; karana: string;
+  nakshatra: string; nakshatraLord: string; ascendant: string; ascendantLord: string;
+  sunrise: string; sunset: string;
+}
+
 export interface KundliResult {
   name: string;
   dob: string;
@@ -42,6 +68,11 @@ export interface KundliResult {
   dashas: DashaPeriod[];
   yogas: { name: string; description: string; isPositive: boolean }[];
   basicPrediction: string;
+  // Richer details (Astrotalk-style)
+  charts?: { d1: VedicChartData; d9: VedicChartData; moon: VedicChartData };
+  avakhada?: Avakhada;
+  panchang?: Panchang;
+  coords?: { lat: number; lng: number; tzOffset: number };
 }
 
 export const ZODIAC_SIGNS = [

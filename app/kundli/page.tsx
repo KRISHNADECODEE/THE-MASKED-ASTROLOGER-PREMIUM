@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { KundliForm } from "@/components/kundli/KundliForm";
-import { LagnaChart } from "@/components/kundli/LagnaChart";
+import { VedicChart } from "@/components/kundli/VedicChart";
 import { PlanetaryTable } from "@/components/kundli/PlanetaryTable";
 import { DashaTimeline } from "@/components/kundli/DashaTimeline";
 import { ZODIAC_SIGNS, type KundliResult } from "@/data/kundli";
@@ -24,7 +24,7 @@ export default function KundliPage() {
     return ZODIAC_SIGNS.find((z) => z.name.toLowerCase() === name.toLowerCase())?.symbol || "✦";
   };
 
-  const handleGenerate = async (formData: { name: string; dob: string; tob: string; pob: string; lat?: number; lng?: number }) => {
+  const handleGenerate = async (formData: { name: string; dob: string; tob: string; pob: string; lat?: number; lng?: number; tzOffsetHours?: number }) => {
     setLoading(true);
     // Real sidereal (Lahiri) Vedic chart computed from the birth details + coordinates.
     await new Promise((r) => setTimeout(r, 1200));
@@ -194,11 +194,45 @@ export default function KundliPage() {
               style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.15)" }}
             >
               {activeTab === "chart" && (
-                <div className="flex flex-col gap-12">
-                  <div className="grid md:grid-cols-2 gap-12 items-start">
-                    <LagnaChart kundli={kundli} />
-                    {/* Yogas sidebar */}
-                    <div>
+                <div className="flex flex-col gap-10">
+                  {/* Divisional charts: D1 · D9 · Moon */}
+                  {kundli.charts && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <VedicChart chart={kundli.charts.d1} />
+                      <VedicChart chart={kundli.charts.d9} />
+                      <VedicChart chart={kundli.charts.moon} />
+                    </div>
+                  )}
+                  {/* Panchang + Avakhada (Astrotalk-style) */}
+                  {kundli.panchang && kundli.avakhada && (
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <DetailPanel title="Panchang" rows={[
+                        ["Tithi", `${kundli.panchang.paksha} ${kundli.panchang.tithi}`],
+                        ["Yoga", kundli.panchang.yoga],
+                        ["Karana", kundli.panchang.karana],
+                        ["Nakshatra", kundli.panchang.nakshatra],
+                        ["Nakshatra Lord", kundli.panchang.nakshatraLord],
+                        ["Ascendant", `${kundli.panchang.ascendant} · ${kundli.panchang.ascendantLord}`],
+                        ["Sunrise", kundli.panchang.sunrise],
+                        ["Sunset", kundli.panchang.sunset],
+                      ]} />
+                      <DetailPanel title="Avakhada Details" rows={[
+                        ["Varna", kundli.avakhada.varna],
+                        ["Vashya", kundli.avakhada.vashya],
+                        ["Yoni", kundli.avakhada.yoni],
+                        ["Gana", kundli.avakhada.gana],
+                        ["Nadi", kundli.avakhada.nadi],
+                        ["Sign", `${kundli.avakhada.sign} · ${kundli.avakhada.signLord}`],
+                        ["Tatva", kundli.avakhada.tatva],
+                        ["Charan (Pada)", String(kundli.avakhada.charan)],
+                        ["Naamakshar", kundli.avakhada.nameAlphabet],
+                        ["Paya", kundli.avakhada.paya],
+                        ["Yunja", kundli.avakhada.yunja],
+                      ]} />
+                    </div>
+                  )}
+                  {/* Yogas */}
+                  <div>
                       <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--color-midnight)", marginBottom: "1rem" }}>
                         Active Yogas
                       </h3>
@@ -248,7 +282,6 @@ export default function KundliPage() {
                         </Link>
                       </div>
                     </div>
-                  </div>
 
                   {/* Sacred Zodiac Reliefs */}
                   <div className="border-t border-[rgba(209,168,110,0.2)] pt-10">
@@ -383,6 +416,22 @@ export default function KundliPage() {
             </div>
           </motion.div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function DetailPanel({ title, rows }: { title: string; rows: [string, string][] }) {
+  return (
+    <div className="rounded-2xl p-6" style={{ background: "var(--color-parchment)", border: "1px solid rgba(209,168,110,0.2)" }}>
+      <h3 className="mb-4" style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", color: "var(--color-midnight)" }}>{title}</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex items-center justify-between gap-3 py-1" style={{ borderBottom: "1px solid rgba(209,168,110,0.12)" }}>
+            <span className="text-[11px] uppercase tracking-wide" style={{ color: "rgba(45,41,38,0.45)", fontFamily: "var(--font-body)" }}>{k}</span>
+            <span className="text-sm font-semibold text-right" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{v}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

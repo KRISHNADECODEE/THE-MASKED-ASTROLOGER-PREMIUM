@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Calendar, Clock, User, ChevronRight } from "lucide-react";
 
 interface FormData {
@@ -11,6 +11,7 @@ interface FormData {
   pob: string;
   lat: number;
   lng: number;
+  tzOffsetHours: number;
 }
 
 interface Props {
@@ -18,35 +19,39 @@ interface Props {
   loading: boolean;
 }
 
-const CITIES = [
-  { name: "New Delhi",  lat: 28.6139, lng: 77.2090 },
-  { name: "Mumbai",     lat: 19.0760, lng: 72.8777 },
-  { name: "Bangalore",  lat: 12.9716, lng: 77.5946 },
-  { name: "Hyderabad",  lat: 17.3850, lng: 78.4867 },
-  { name: "Chennai",    lat: 13.0827, lng: 80.2707 },
-  { name: "Kolkata",    lat: 22.5726, lng: 88.3639 },
-  { name: "Pune",       lat: 18.5204, lng: 73.8567 },
-  { name: "Ahmedabad",  lat: 23.0225, lng: 72.5714 },
-  { name: "Jaipur",     lat: 26.9124, lng: 75.7873 },
-  { name: "Surat",      lat: 21.1702, lng: 72.8311 },
-  { name: "Lucknow",    lat: 26.8467, lng: 80.9462 },
-  { name: "Bhopal",     lat: 23.2599, lng: 77.4126 },
-  { name: "Varanasi",   lat: 25.3176, lng: 82.9739 },
-  { name: "Amritsar",   lat: 31.6340, lng: 74.8723 },
-  { name: "Dehradun",   lat: 30.3165, lng: 78.0322 },
-];
+interface Place { name: string; lat: number; lng: number; tz: number }
+
+const roundHalf = (n: number) => Math.round(n * 2) / 2;
 
 export function KundliForm({ onGenerate, loading }: Props) {
   const [step, setStep]   = useState(1);
   const [form, setForm]   = useState<FormData>({
-    name: "", gender: "male", dob: "", tob: "", pob: "", lat: 28.6139, lng: 77.2090,
+    name: "", gender: "male", dob: "", tob: "", pob: "", lat: 28.6139, lng: 77.209, tzOffsetHours: 5.5,
   });
   const [citySearch, setCitySearch] = useState("");
   const [showCities, setShowCities] = useState(false);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const filteredCities = CITIES.filter((c) =>
-    c.name.toLowerCase().includes(citySearch.toLowerCase())
-  );
+  // Global birth-place search via OpenStreetMap Nominatim (real lat/lng + tz).
+  useEffect(() => {
+    const q = citySearch.trim();
+    if (q.length < 3) { setPlaces([]); return; }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setSearching(true);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&q=${encodeURIComponent(q)}`, { headers: { Accept: "application/json" } });
+        const data = (await res.json()) as { lat: string; lon: string; display_name: string; address?: { country_code?: string } }[];
+        setPlaces(data.map((d) => {
+          const lng = parseFloat(d.lon);
+          const india = d.address?.country_code === "in";
+          return { name: d.display_name, lat: parseFloat(d.lat), lng, tz: india ? 5.5 : roundHalf(lng / 15) };
+        }));
+      } catch { setPlaces([]); } finally { setSearching(false); }
+    }, 450);
+  }, [citySearch]);
 
   const update = (field: keyof FormData, value: string | number) =>
     setForm((f) => ({ ...f, [field]: value }));
@@ -256,47 +261,52 @@ export function KundliForm({ onGenerate, loading }: Props) {
                 />
               </div>
 
-              {showCities && filteredCities.length > 0 && (
+              {showCities && (citySearch.trim().length >= 3) && (
                 <div
-                  className="absolute z-10 left-0 right-0 top-full mt-1 rounded-xl overflow-hidden shadow-xl"
+                  className="absolute z-10 left-0 right-0 top-full mt-1 rounded-xl overflow-hidden shadow-xl max-h-72 overflow-y-auto"
                   style={{ background: "var(--color-ivory)", border: "1px solid rgba(209, 168, 110, 0.2)" }}
                 >
-                  {filteredCities.slice(0, 6).map((city) => (
+                  {searching && places.length === 0 && (
+                    <div className="px-4 py-3 text-sm" style={{ color: "rgba(45,41,38,0.45)", fontFamily: "var(--font-body)" }}>Searching…</div>
+                  )}
+                  {!searching && places.length === 0 && (
+                    <div className="px-4 py-3 text-sm" style={{ color: "rgba(45,41,38,0.45)", fontFamily: "var(--font-body)" }}>No matches — try a fuller name.</div>
+                  )}
+                  {places.map((place, i) => (
                     <button
-                      key={city.name}
-                      className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 transition-all hover:bg-parchment"
+                      key={i}
+                      type="button"
+                      className="w-full text-left px-4 py-3 text-sm flex items-start gap-2 transition-all"
                       style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--color-parchment)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ""; }}
                       onClick={() => {
-                        update("pob", city.name);
-                        update("lat", city.lat);
-                        update("lng", city.lng);
+                        update("pob", place.name);
+                        update("lat", place.lat);
+                        update("lng", place.lng);
+                        update("tzOffsetHours", place.tz);
                         setCitySearch("");
                         setShowCities(false);
                       }}
                     >
-                      <MapPin size={12} style={{ color: "var(--color-gold)", flexShrink: 0 }} />
-                      <span>{city.name}</span>
-                      <span className="ml-auto text-xs" style={{ color: "rgba(45, 41, 38, 0.35)" }}>
-                        {city.lat.toFixed(2)}°N
-                      </span>
+                      <MapPin size={13} style={{ color: "var(--color-gold)", flexShrink: 0, marginTop: 2 }} />
+                      <span className="leading-snug">{place.name}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {form.pob && (
+            {form.pob && !citySearch && (
               <div
                 className="rounded-xl px-4 py-3 flex items-center gap-3"
                 style={{ background: "rgba(209, 168, 110, 0.08)", border: "1px solid rgba(209, 168, 110, 0.15)" }}
               >
                 <span style={{ color: "var(--color-gold)" }}>📍</span>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{form.pob}</p>
-                  <p className="text-xs" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-mono)" }}>
-                    {form.lat.toFixed(4)}°N · {form.lng.toFixed(4)}°E
+                  <p className="text-sm font-semibold leading-snug" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{form.pob}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-mono)" }}>
+                    {form.lat.toFixed(4)}°, {form.lng.toFixed(4)}° · GMT{form.tzOffsetHours >= 0 ? "+" : ""}{form.tzOffsetHours}
                   </p>
                 </div>
               </div>
