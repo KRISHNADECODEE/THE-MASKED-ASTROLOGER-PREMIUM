@@ -24,14 +24,14 @@ const TestimonialsCarousel = dynamic(
 const MODULES = [
   { href: "/kundli",       title: "Free Birth Chart",        emoji: "🔯", desc: "Free Kundli with planetary positions, dashas & predictions — instant",      badge: "Free",    color: "#C9A227" },
   { href: "/matchmaking",  title: "Kundli Matchmaking",      emoji: "💞", desc: "Gun Milan compatibility across all 8 kootas (36 gunas) for marriage",       badge: "Popular", color: "#C48A69" },
-  { href: "/horoscope",    title: "Daily Rashifal",          emoji: "🌙", desc: "Today's Moon-sign reading for all 12 Rashis — love, work & health",        badge: "Daily",   color: "#7C5CBF" },
+  { href: "/horoscope",    title: "Daily Horoscope",         emoji: "🌙", desc: "Today's star sign reading for all 12 signs — love, work & health",         badge: "Daily",   color: "#7C5CBF" },
   { href: "/consultation", title: "Live Consultation",       emoji: "🎙️", desc: "Book a 1:1 chat, call, or video session with our expert astrologer",         badge: null,      color: "#C9A227" },
   { href: "/kundli/pdf",   title: "Kundli PDF Report",       emoji: "📄", desc: "Downloadable branded kundli report — free basic, paid detailed version",    badge: "New",     color: "#E87722" },
   { href: "/ai-chat",      title: "AI Astrologer",           emoji: "🤖", desc: "Personalized AI trained on 1,00,000+ charts — coming soon to early birds",  badge: "Soon",    color: "#7C5CBF" },
   { href: "/courses",      title: "Astrology Courses",       emoji: "📚", desc: "Learn Vedic astrology from beginner to advanced level — video + PDF",       badge: null,      color: "#E87722" },
   { href: "/store",        title: "Gemstones & Remedies",    emoji: "💎", desc: "Shop certified gemstones, yantras, books, and pooja items",                  badge: null,      color: "#C9A227" },
   { href: "/blog",         title: "Astrology Blog",          emoji: "✍️", desc: "Deep-dive articles on transits, yogas, doshas, and chart reading",           badge: null,      color: "#E87722" },
-  { href: "/donate",       title: "Street Dog Donation",     emoji: "🐾", desc: "Item-based transparent donation to street dogs — with photo proof",          badge: "❤️",      color: "#6B1F2A" },
+  { href: "/donate",       title: "Donate & Give Back",      emoji: "❤️", desc: "Support street dogs, hungry families, and children's education — with photo proof", badge: "Give",    color: "#6B1F2A" },
 ];
 
 const STATS = [
@@ -547,7 +547,7 @@ export default function HomePage() {
             <h2 className="section-title">The 12 Rashis</h2>
             <p className="mt-4 max-w-xl mx-auto text-base" style={{ color: "rgba(45,41,38,0.65)", fontFamily: "var(--font-body)", lineHeight: 1.7 }}>
               The twelve Rashis (moon signs) of Vedic Jyotish, each ruled by its Graha (planet).
-              <span className="font-semibold" style={{ color: "var(--color-gold-dark)" }}> Tap any Rashi to read today&apos;s Rashifal.</span>
+              <span className="font-semibold" style={{ color: "var(--color-gold-dark)" }}> Tap any sign to read today&apos;s horoscope.</span>
             </p>
           </div>
 
@@ -556,7 +556,7 @@ export default function HomePage() {
               <motion.button
                 key={r.id}
                 onClick={() => setHoroSign(r.id)}
-                aria-label={`Read today's ${r.sanskrit} rashifal`}
+                aria-label={`Read today's ${r.sanskrit} horoscope`}
                 className="group relative overflow-hidden rounded-2xl border aspect-square cursor-pointer text-left w-full"
                 style={{
                   borderColor: "rgba(209,168,110,0.25)",

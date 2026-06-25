@@ -10,7 +10,7 @@ export default function TermsPage() {
       intro="By using The Masked Astrologer, you agree to these terms. Please read them carefully before generating reports, booking consultations, or purchasing products."
       sections={[
         { heading: "Nature of Service", body: [
-          "Astrology is provided for guidance, self-reflection and entertainment. Our readings, Rashifal and Gun Milan results are not a substitute for professional medical, legal, or financial advice.",
+          "Astrology is provided for guidance, self-reflection and entertainment. Our readings, horoscopes and compatibility results are not a substitute for professional medical, legal, or financial advice.",
         ]},
         { heading: "Accounts", body: [
           "You are responsible for keeping your login credentials secure and for activity under your account. You must provide accurate birth and contact details for accurate readings.",

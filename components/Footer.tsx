@@ -108,9 +108,9 @@ export function Footer() {
               className="text-sm leading-relaxed mb-6"
               style={{ color: "rgba(250,245,237,0.5)", fontFamily: "var(--font-body)", maxWidth: "300px" }}
             >
-              India&apos;s most modern Vedic Jyotish platform — generate your Janm Kundli,
-              match horoscopes with Gun Milan, read your daily Rashifal, and consult an
-              expert Jyotishi for authentic guidance and remedies.
+              India&apos;s most trusted Vedic astrology platform — generate your birth chart,
+              check marriage compatibility, read your daily horoscope, and consult an
+              expert for authentic guidance and remedies.
             </p>
 
             {/* Contact */}

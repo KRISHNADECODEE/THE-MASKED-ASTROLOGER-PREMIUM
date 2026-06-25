@@ -12,7 +12,7 @@ export default function RefundPage() {
         { heading: "Consultations", body: [
           "Cancel or reschedule a consultation up to 24 hours before your slot for a full refund or free reschedule. No-shows and last-minute cancellations are non-refundable.",
         ]},
-        { heading: "Digital Reports (Kundli PDF, Rashifal, Gun Milan)", body: [
+        { heading: "Digital Reports (Kundli PDF, Horoscope, Compatibility)", body: [
           "Digital reports are generated instantly and are non-refundable once delivered. If a report fails to generate or is duplicated, contact us for a full refund or re-issue.",
         ]},
         { heading: "Courses", body: [

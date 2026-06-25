@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { MandalaBackground } from "@/components/MandalaBackground";
-import { DONATION_ITEMS } from "@/data/content";
+import { DONATION_ITEMS, type DonationCategory } from "@/data/content";
 import { formatPrice } from "@/lib/utils";
 import { ShieldCheck, Heart, Sparkles, CheckCircle, Clock } from "lucide-react";
 import toast from "react-hot-toast";
+
+type CategoryFilter = DonationCategory | "All";
 
 interface TransparencyLog {
   id: string;
@@ -59,11 +61,14 @@ const INITIAL_LOGS: TransparencyLog[] = [
   },
 ];
 
+const CATEGORIES: CategoryFilter[] = ["All", "Street Dogs", "People in Need", "Poor Children", "Education"];
+
 export default function DonationPage() {
   const [logs, setLogs] = useState<TransparencyLog[]>(INITIAL_LOGS);
   const [selectedItems, setSelectedItems] = useState<{ [id: string]: number }>({});
   const [donorName, setDonorName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("All");
 
   const handleQtyChange = (itemId: string, diff: number) => {
     setSelectedItems((prev) => {
@@ -149,7 +154,6 @@ export default function DonationPage() {
         >
           <MandalaBackground />
           <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center gap-4">
-            <div className="text-4xl animate-bounce">❤️</div>
             <p className="section-eyebrow" style={{ color: "#E87722" }}>
               100% Transparent · Item-Based Giving
             </p>
@@ -164,9 +168,9 @@ export default function DonationPage() {
               Give Food, Books &amp; Care
             </h1>
             <p className="text-sm" style={{ color: "rgba(253,233,207,0.6)", fontFamily: "var(--font-body)", lineHeight: 1.6 }}>
-              In Vedic culture, daan (selfless giving) — feeding street dogs, serving the hungry, and educating a
-              child — is a powerful karmic practice. Choose exactly what you want to give. We maintain total
-              transparency: we buy the items and post photos of every distribution.
+              In Vedic tradition, giving (daan) is one of the most powerful acts — feeding a hungry child,
+              helping a family in need, or caring for a street animal. Pick exactly what you want to donate.
+              We buy the items ourselves and share photo proof of every delivery.
             </p>
           </div>
         </section>
@@ -181,11 +185,30 @@ export default function DonationPage() {
                 color: "#0F0A1E",
               }}
             >
-              Select Items to Donate
+              Choose What to Donate
             </h2>
 
+            {/* Category filter */}
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
+                  style={{
+                    background: activeCategory === cat ? "var(--color-midnight)" : "var(--color-ivory)",
+                    color: activeCategory === cat ? "var(--color-parchment)" : "rgba(15,10,30,0.6)",
+                    border: `1.5px solid ${activeCategory === cat ? "var(--color-midnight)" : "rgba(209,168,110,0.2)"}`,
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {DONATION_ITEMS.map((item) => {
+              {DONATION_ITEMS.filter((item) => activeCategory === "All" || item.category === activeCategory).map((item) => {
                 const qty = selectedItems[item.id] || 0;
                 return (
                   <div
@@ -197,19 +220,18 @@ export default function DonationPage() {
                     }}
                   >
                     <div>
-                      <div className="flex justify-between items-start">
-                        <span className="text-3xl">{item.emoji}</span>
-                        <span className="text-sm font-bold" style={{ color: "#0F0A1E", fontFamily: "var(--font-body)" }}>
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(209,168,110,0.14)", color: "var(--color-gold-dark)", whiteSpace: "nowrap" }}>
+                          {item.category}
+                        </span>
+                        <span className="text-sm font-bold flex-shrink-0" style={{ color: "#0F0A1E", fontFamily: "var(--font-body)" }}>
                           {formatPrice(item.cost)}
                         </span>
                       </div>
-                      <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mt-3" style={{ background: "rgba(209,168,110,0.14)", color: "var(--color-gold-dark)" }}>
-                        {item.category}
-                      </span>
-                      <h3 className="font-semibold text-sm mt-2" style={{ color: "#0F0A1E", fontFamily: "var(--font-body)" }}>
+                      <h3 className="font-semibold text-sm mt-3" style={{ color: "#0F0A1E", fontFamily: "var(--font-body)" }}>
                         {item.name}
                       </h3>
-                      <p className="text-xs mt-1" style={{ color: "rgba(15,10,30,0.5)", fontFamily: "var(--font-body)" }}>
+                      <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(15,10,30,0.5)", fontFamily: "var(--font-body)" }}>
                         {item.description}
                       </p>
                     </div>

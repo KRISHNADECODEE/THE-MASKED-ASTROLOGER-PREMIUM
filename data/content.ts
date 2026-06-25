@@ -269,29 +269,35 @@ export const BLOG_POSTS = [
   },
 ];
 
-export type DonationCategory = "Street Dogs" | "People in Need" | "Education";
+export type DonationCategory = "Street Dogs" | "People in Need" | "Poor Children" | "Education";
 
 export const DONATION_ITEMS: {
   id: string;
   name: string;
-  emoji: string;
   cost: number;
   description: string;
   category: DonationCategory;
 }[] = [
   // ── Street Dogs ──
-  { id: "d-1",  name: "Food for a Street Dog",   emoji: "🐕", cost: 350, description: "5 kg premium kibble to feed adult street dogs",        category: "Street Dogs" },
-  { id: "d-2",  name: "Dog Vaccination Kit",     emoji: "💉", cost: 800, description: "Core vaccines: Distemper, Parvovirus, Rabies",          category: "Street Dogs" },
-  { id: "d-3",  name: "Anti-Tick Collar",        emoji: "🔴", cost: 150, description: "3-month anti-tick & flea protection collar",            category: "Street Dogs" },
-  { id: "d-4",  name: "Dog First-Aid Kit",       emoji: "🏥", cost: 500, description: "Wound care & antiseptic kit for injured strays",        category: "Street Dogs" },
+  { id: "d-1",  name: "Food for a Street Dog",        cost: 350, description: "5 kg of good quality dry food to feed adult street dogs for several days.",         category: "Street Dogs" },
+  { id: "d-2",  name: "Dog Vaccination",              cost: 800, description: "Core vaccines — Distemper, Parvovirus, Rabies — for one stray dog.",                 category: "Street Dogs" },
+  { id: "d-3",  name: "Tick & Flea Protection",       cost: 150, description: "A 3-month anti-tick and flea protection collar for one street dog.",                 category: "Street Dogs" },
+  { id: "d-4",  name: "Dog First-Aid Kit",            cost: 500, description: "Wound care, antiseptic, and bandages for an injured stray dog.",                     category: "Street Dogs" },
 
   // ── People in Need ──
-  { id: "d-5",  name: "Meal for the Hungry",     emoji: "🍱", cost: 60,  description: "A hot, nutritious meal for one person in need",         category: "People in Need" },
-  { id: "d-6",  name: "Ration Kit for a Family", emoji: "🛒", cost: 700, description: "Rice, dal, flour & oil to feed a family for a week",    category: "People in Need" },
-  { id: "d-7",  name: "Warm Blanket",            emoji: "🛏️", cost: 250, description: "A warm blanket for someone sleeping rough this winter", category: "People in Need" },
-  { id: "d-8",  name: "Clean Water for a Day",   emoji: "💧", cost: 100, description: "Safe drinking water for a person for one full day",     category: "People in Need" },
+  { id: "d-5",  name: "Hot Meal for a Person",        cost: 60,  description: "One full, nutritious cooked meal for a person who is hungry and in need.",           category: "People in Need" },
+  { id: "d-6",  name: "Weekly Ration for a Family",   cost: 700, description: "Rice, dal, flour, and cooking oil — enough to feed a family of four for one week.",  category: "People in Need" },
+  { id: "d-7",  name: "Winter Blanket",               cost: 250, description: "A warm blanket for someone who sleeps on the street during cold nights.",             category: "People in Need" },
+  { id: "d-8",  name: "Clean Drinking Water",         cost: 100, description: "Safe, clean drinking water for one person for an entire day.",                        category: "People in Need" },
+
+  // ── Poor Children ──
+  { id: "d-9",  name: "Nutritious Meal for a Child",  cost: 50,  description: "One healthy, balanced meal — rice, dal, sabzi, and milk — for a poor child.",        category: "Poor Children" },
+  { id: "d-10", name: "Week of Meals for a Child",    cost: 300, description: "Seven days of nutritious meals for one underprivileged child.",                       category: "Poor Children" },
+  { id: "d-11", name: "School Books for a Child",     cost: 400, description: "A full set of textbooks for one school year for a child who cannot afford them.",     category: "Poor Children" },
+  { id: "d-12", name: "Storybook for a Child",        cost: 120, description: "A storybook or picture book to build reading skills and imagination.",                category: "Poor Children" },
+  { id: "d-13", name: "School Bag & Supplies",        cost: 350, description: "A school bag, notebooks, pencils, ruler, and eraser for one child.",                  category: "Poor Children" },
 
   // ── Education ──
-  { id: "d-9",  name: "Donate a Book",           emoji: "📚", cost: 250, description: "A storybook or textbook for an underprivileged child",  category: "Education" },
-  { id: "d-10", name: "School Supplies Kit",     emoji: "✏️", cost: 300, description: "Notebooks, pencils & a bag for one student",            category: "Education" },
+  { id: "d-14", name: "Notebook & Stationery Set",    cost: 150, description: "Notebooks, pens, and basic stationery for a student who cannot afford them.",         category: "Education" },
+  { id: "d-15", name: "School Uniform for a Child",   cost: 450, description: "A complete school uniform so a child can attend school with dignity.",                 category: "Education" },
 ];

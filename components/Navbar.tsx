@@ -12,12 +12,12 @@ import { useAuth } from "@/components/auth/AuthProvider";
 const NAV_LINKS = [
   { href: "/kundli",       label: "Kundli",       emoji: "🔯" },
   { href: "/matchmaking",  label: "Matching",     emoji: "💞" },
-  { href: "/horoscope",    label: "Rashifal",     emoji: "🌙" },
+  { href: "/horoscope",    label: "Horoscope",    emoji: "🌙" },
   { href: "/consultation", label: "Consult",      emoji: "🎙️" },
   { href: "/store",        label: "Store",        emoji: "🛍️" },
   { href: "/courses",      label: "Courses",      emoji: "📚" },
   { href: "/blog",         label: "Blog",         emoji: "✍️" },
-  { href: "/donate",       label: "Donate 🐾",    emoji: "" },
+  { href: "/donate",       label: "Donate",       emoji: "" },
 ];
 
 export function Navbar() {

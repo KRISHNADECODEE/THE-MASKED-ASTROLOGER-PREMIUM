@@ -10,7 +10,7 @@ export default function PrivacyPage() {
       intro="The Masked Astrologer respects your privacy. This policy explains what information we collect when you generate a Kundli, match horoscopes, book a consultation, or shop with us, and how we use and protect it."
       sections={[
         { heading: "Information We Collect", body: [
-          "Birth details (name, date, time and place of birth) you submit to generate a Janm Kundli, Rashifal, or Gun Milan match.",
+          "Birth details (name, date, time and place of birth) you submit to generate a Janm Kundli, horoscope, or compatibility match.",
           "Account details (name, email, phone) when you sign up, and order/booking details when you transact.",
           "Standard technical data such as device, browser and usage analytics.",
         ]},

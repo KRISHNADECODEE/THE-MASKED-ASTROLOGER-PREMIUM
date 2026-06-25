@@ -39,9 +39,9 @@ export default function RashifalPage() {
       <section className="relative pt-24 pb-14 overflow-hidden" style={{ background: "linear-gradient(180deg, var(--color-cosmic) 0%, var(--color-midnight-800) 100%)" }}>
         <MandalaBackground />
         <div className="container-xl relative z-10 text-center">
-          <p className="section-eyebrow mb-4">Daily Rashifal · Updated Every Day</p>
+          <p className="section-eyebrow mb-4">Daily Horoscope · Updated Every Day</p>
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2.5rem,6vw,4.5rem)", color: "var(--color-parchment)", lineHeight: 1.05, marginBottom: "0.75rem" }}>
-            Daily Rashifal
+            Daily Horoscope
           </h1>
           <p className="text-sm max-w-xl mx-auto flex items-center justify-center gap-2" style={{ color: "rgba(250,245,237,0.55)", fontFamily: "var(--font-body)" }}>
             <Moon size={14} /> Vedic predictions based on your{" "}
