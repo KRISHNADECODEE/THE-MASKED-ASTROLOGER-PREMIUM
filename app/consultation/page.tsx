@@ -4,7 +4,7 @@ import { MandalaBackground } from "@/components/MandalaBackground";
 import { CONSULTATION_SERVICES } from "@/data/content";
 import { BookingForm } from "@/components/consultation/BookingForm";
 import { AstrologerProfile } from "@/components/AstrologerProfile";
-import { formatPrice } from "@/lib/utils";
+import { Money } from "@/components/locale/Money";
 import { Check } from "lucide-react";
 
 export const metadata = {
@@ -106,7 +106,7 @@ export default function ConsultationPage() {
                   <p
                     style={{ fontFamily: "var(--font-body)", fontSize: "1.6rem", fontWeight: 800, color: svc.popular ? "var(--color-gold)" : "var(--color-midnight)" }}
                   >
-                    {formatPrice(svc.price)}
+                    <Money inr={svc.price} />
                   </p>
                   <Link
                     href={`?service=${svc.id}#book`}

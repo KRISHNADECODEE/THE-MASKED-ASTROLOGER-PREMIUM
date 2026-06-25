@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { COURSES } from "@/data/content";
-import { formatPrice } from "@/lib/utils";
+import { useLocale } from "@/components/locale/LocaleProvider";
 import { ArrowLeft, BookOpen, Clock, Play, Award, HelpCircle, Star, Users } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -13,6 +13,7 @@ export default function CourseDetailPage(props: { params: Promise<{ slug: string
   const router = useRouter();
   const course = COURSES.find((c) => c.slug === params.slug);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { money } = useLocale();
 
   if (!course) {
     return (
@@ -153,11 +154,11 @@ export default function CourseDetailPage(props: { params: Promise<{ slug: string
 
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-3xl font-bold" style={{ color: "var(--color-gold)" }}>
-                  {formatPrice(course.price)}
+                  {money(course.price)}
                 </span>
                 {course.originalPrice && (
                   <span className="text-sm line-through" style={{ color: "rgba(250,245,237,0.4)" }}>
-                    {formatPrice(course.originalPrice)}
+                    {money(course.originalPrice)}
                   </span>
                 )}
               </div>

@@ -3,12 +3,13 @@
 import { X, Trash2, ShoppingBag, Plus, Minus } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "@/lib/store/cart";
-import { formatPrice } from "@/lib/utils";
+import { useLocale } from "@/components/locale/LocaleProvider";
 import { productImageSrc } from "@/data/products";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, totalPrice } =
     useCartStore();
+  const { money } = useLocale();
 
   if (!isOpen) return null;
 
@@ -100,7 +101,7 @@ export function CartDrawer() {
                       {product.name}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: "var(--color-gold)" }}>
-                      {formatPrice(product.price)}
+                      {money(product.price)}
                     </p>
 
                     <div className="flex items-center gap-2 mt-2">
@@ -160,7 +161,7 @@ export function CartDrawer() {
                 className="text-xl font-bold"
                 style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}
               >
-                {formatPrice(totalPrice())}
+                {money(totalPrice())}
               </span>
             </div>
             <Link

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BadgeCheck, Star, Quote } from "lucide-react";
 import { CONSULTATION_SERVICES, TESTIMONIALS } from "@/data/content";
-import { formatPrice } from "@/lib/utils";
+import { Money } from "@/components/locale/Money";
 
 const CREDENTIALS = [
   { value: "10+", label: "Years of practice" },
@@ -98,7 +98,7 @@ export function AstrologerProfile() {
                 <p className="text-xs mt-1" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>{svc.subtitle} · {svc.duration}</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className="font-bold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)", fontSize: "1.1rem" }}>{formatPrice(svc.price)}</span>
+                <span className="font-bold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)", fontSize: "1.1rem" }}><Money inr={svc.price} /></span>
                 <Link href={`?service=${svc.id}#book`} className="btn-gold text-xs px-4 py-2">Book</Link>
               </div>
             </div>

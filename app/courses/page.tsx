@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MandalaBackground } from "@/components/MandalaBackground";
 import { COURSES } from "@/data/content";
 import { Star, Play, Clock, Users, BookOpen } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
+import { Money } from "@/components/locale/Money";
 
 export const metadata = {
   title: "Astrology Courses",
@@ -133,11 +133,11 @@ export default function CoursesPage() {
                 <div className="pt-4 flex items-center justify-between gap-3" style={{ borderTop: "1px solid rgba(209,168,110,0.12)" }}>
                   <div>
                     <span className="font-bold text-lg" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>
-                      {formatPrice(course.price)}
+                      <Money inr={course.price} />
                     </span>
                     {course.originalPrice && (
                       <span className="ml-2 text-sm line-through" style={{ color: "rgba(45,41,38,0.35)", fontFamily: "var(--font-body)" }}>
-                        {formatPrice(course.originalPrice)}
+                        <Money inr={course.originalPrice} />
                       </span>
                     )}
                   </div>

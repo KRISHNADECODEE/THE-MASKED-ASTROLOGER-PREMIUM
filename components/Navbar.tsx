@@ -8,6 +8,8 @@ import { ShoppingBag, Menu, X, Star, User } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { CartDrawer } from "@/components/store/CartDrawer";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useLocale } from "@/components/locale/LocaleProvider";
+import { CURRENCIES, CURRENCY_ORDER } from "@/lib/locale/config";
 
 const NAV_LINKS = [
   { href: "/kundli",       label: "Kundli",       emoji: "🔯" },
@@ -27,6 +29,7 @@ export function Navbar() {
   const { toggleCart, totalItems } = useCartStore();
   const cartCount = totalItems();
   const { user } = useAuth();
+  const { currency, setCurrency } = useLocale();
 
   const initials = (() => {
     const name =
@@ -133,6 +136,26 @@ export function Navbar() {
               >
                 <span className="animate-pulse">●</span> AI Astrologer
               </Link>
+
+              {/* Currency switcher */}
+              <div
+                className="hidden md:flex items-center gap-0.5 rounded-lg p-0.5"
+                style={{ background: "rgba(209,168,110,0.1)", border: "1px solid rgba(209,168,110,0.15)" }}
+              >
+                {CURRENCY_ORDER.map((code) => (
+                  <button
+                    key={code}
+                    onClick={() => setCurrency(code)}
+                    className="px-2 py-1 rounded-md text-[11px] font-bold transition-all"
+                    style={{
+                      background: currency === code ? "var(--color-gold)" : "transparent",
+                      color: currency === code ? "var(--color-midnight)" : "rgba(45,41,38,0.5)",
+                    }}
+                  >
+                    {CURRENCIES[code].symbol}
+                  </button>
+                ))}
+              </div>
 
               {/* Cart */}
               <button

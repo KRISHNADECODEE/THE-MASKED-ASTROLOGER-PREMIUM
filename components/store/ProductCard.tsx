@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { ShoppingBag, Star } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
-import { formatPrice } from "@/lib/utils";
+import { useLocale } from "@/components/locale/LocaleProvider";
 import { type Product, productImageSrc, hasPromoImage } from "@/data/products";
 import toast from "react-hot-toast";
 
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
+  const { money } = useLocale();
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -105,11 +106,11 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Price */}
         <div className="flex items-center gap-2 mt-1 pt-2" style={{ borderTop: "1px solid rgba(209, 168, 110, 0.15)" }}>
           <span className="font-bold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)", fontSize: "1rem" }}>
-            {formatPrice(product.price)}
+            {money(product.price)}
           </span>
           {product.originalPrice && (
             <span className="text-xs line-through" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-body)" }}>
-              {formatPrice(product.originalPrice)}
+              {money(product.originalPrice)}
             </span>
           )}
         </div>

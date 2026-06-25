@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { LocaleProvider } from "@/components/locale/LocaleProvider";
 import { SiteAnnouncement } from "@/components/SiteAnnouncement";
 
 const fondamento = Fondamento({
@@ -75,10 +76,12 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col antialiased">
         <AuthProvider>
-          <SiteAnnouncement />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <LocaleProvider>
+            <SiteAnnouncement />
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </LocaleProvider>
         </AuthProvider>
         <Toaster
           position="top-right"

@@ -60,7 +60,7 @@ export const DICTIONARY: Record<string, Partial<Record<LanguageCode, string>>> =
   "nav.consult": { en: "Consult", hi: "परामर्श" },
   "nav.courses": { en: "Courses", hi: "पाठ्यक्रम" },
   "nav.blog": { en: "Blog", hi: "ब्लॉग" },
-  "nav.donate": { en: "Donate 🐾", hi: "दान 🐾" },
+  "nav.donate": { en: "Donate", hi: "दान करें" },
   "common.bookNow": { en: "Book Now", hi: "अभी बुक करें" },
   "common.addToCart": { en: "Add to Cart", hi: "कार्ट में डालें" },
   "common.signIn": { en: "Sign In", hi: "साइन इन" },

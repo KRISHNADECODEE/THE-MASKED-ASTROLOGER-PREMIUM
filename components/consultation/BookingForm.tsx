@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Calendar, Clock, User, Phone, Mail, MessageSquare, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { formatPrice } from "@/lib/utils";
+import { useLocale } from "@/components/locale/LocaleProvider";
+import { istSlotToLocal, timeZoneAbbr, isIST } from "@/lib/locale/timezone";
 
 const TIME_SLOTS = [
   "09:00 AM", "10:00 AM", "11:00 AM",
@@ -30,6 +31,10 @@ export function BookingForm({ services }: { services: Service[] }) {
   });
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+
+  const { money, timezone } = useLocale();
+  const tzAbbr = timeZoneAbbr(timezone);
+  const userIsIST = isIST(timezone);
 
   const selectedService = services.find((s) => s.id === form.serviceId);
   const update = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -111,7 +116,7 @@ export function BookingForm({ services }: { services: Service[] }) {
                 <input type="radio" name="service" value={s.id} checked={form.serviceId === s.id}
                   onChange={() => update("serviceId", s.id)} className="accent-gold" style={{ accentColor: "var(--color-gold)" }} />
                 <span className="flex-1 text-sm font-medium" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{s.title}</span>
-                <span className="font-bold text-sm" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>{formatPrice(s.price)}</span>
+                <span className="font-bold text-sm" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>{money(s.price)}</span>
               </label>
             ))}
           </div>
@@ -157,20 +162,38 @@ export function BookingForm({ services }: { services: Service[] }) {
 
         {/* Slot picker */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "rgba(45, 41, 38, 0.5)" }}>Preferred Time Slot (IST)</label>
+          <label className="block text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "rgba(45, 41, 38, 0.5)" }}>
+            Preferred Time Slot
+          </label>
+          {!userIsIST && (
+            <p className="text-[11px] mb-3" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-body)" }}>
+              Showing in your local time ({tzAbbr}) · Sessions are conducted in IST
+            </p>
+          )}
+          {userIsIST && (
+            <p className="text-[11px] mb-3" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-body)" }}>
+              All times in IST (Indian Standard Time)
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
-            {TIME_SLOTS.map((slot) => (
-              <button type="button" key={slot} onClick={() => update("slot", slot)}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                style={{
-                  background: form.slot === slot ? "var(--color-midnight)" : "var(--color-parchment)",
-                  color: form.slot === slot ? "var(--color-parchment)" : "rgba(45, 41, 38, 0.6)",
-                  border: `1.5px solid ${form.slot === slot ? "var(--color-midnight)" : "rgba(209, 168, 110, 0.15)"}`,
-                  fontFamily: "var(--font-body)",
-                }}>
-                {slot}
-              </button>
-            ))}
+            {TIME_SLOTS.map((slot) => {
+              const localSlot = userIsIST ? slot : istSlotToLocal(slot, timezone);
+              return (
+                <button type="button" key={slot} onClick={() => update("slot", slot)}
+                  className="flex flex-col items-center px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  style={{
+                    background: form.slot === slot ? "var(--color-midnight)" : "var(--color-parchment)",
+                    color: form.slot === slot ? "var(--color-parchment)" : "rgba(45, 41, 38, 0.6)",
+                    border: `1.5px solid ${form.slot === slot ? "var(--color-midnight)" : "rgba(209, 168, 110, 0.15)"}`,
+                    fontFamily: "var(--font-body)",
+                  }}>
+                  <span>{localSlot}</span>
+                  {!userIsIST && (
+                    <span className="text-[10px] mt-0.5 opacity-60">{slot} IST</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -190,7 +213,7 @@ export function BookingForm({ services }: { services: Service[] }) {
           {selectedService && (
             <div className="flex justify-between text-sm">
               <span style={{ color: "rgba(45, 41, 38, 0.5)", fontFamily: "var(--font-body)" }}>Total</span>
-              <span className="font-bold text-base" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{formatPrice(selectedService.price)}</span>
+              <span className="font-bold text-base" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{money(selectedService.price)}</span>
             </div>
           )}
           <button type="submit" disabled={loading} className="btn-gold w-full py-4 flex items-center justify-center gap-2">
