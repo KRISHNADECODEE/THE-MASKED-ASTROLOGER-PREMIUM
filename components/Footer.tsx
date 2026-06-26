@@ -129,7 +129,7 @@ export function Footer() {
             {/* Social links */}
             <div className="flex gap-3">
               {[
-                { icon: InstagramIcon, href: "https://instagram.com/maskedastrologer", label: "Instagram" },
+                { icon: InstagramIcon, href: "https://instagram.com/the_masked_astrologer", label: "Instagram" },
                 { icon: YoutubeIcon,   href: "https://youtube.com/@maskedastrologer", label: "YouTube" },
                 { icon: Mail,          href: "mailto:support@maskedastrologer.com", label: "Email" },
               ].map(({ icon: Icon, href, label }) => (

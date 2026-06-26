@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Star, Quote } from "lucide-react";
+import { BadgeCheck, Star, Quote, Instagram } from "lucide-react";
 import { CONSULTATION_SERVICES, TESTIMONIALS } from "@/data/content";
 import { Money } from "@/components/locale/Money";
 
@@ -70,11 +70,22 @@ export function AstrologerProfile() {
               ))}
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               {CERTS.map((cert) => (
                 <span key={cert} className="text-xs px-3 py-1 rounded-full" style={{ background: "rgba(250,245,237,0.06)", color: "rgba(250,245,237,0.7)", border: "1px solid rgba(209,168,110,0.2)" }}>{cert}</span>
               ))}
             </div>
+
+            <a
+              href="https://instagram.com/the_masked_astrologer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full transition-all"
+              style={{ background: "rgba(209,168,110,0.1)", color: "rgba(250,245,237,0.6)", border: "1px solid rgba(209,168,110,0.2)" }}
+            >
+              <Instagram size={13} />
+              @the_masked_astrologer
+            </a>
           </div>
         </div>
       </div>
