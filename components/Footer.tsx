@@ -237,13 +237,13 @@ export function Footer() {
           <p className="text-[11px] tracking-wide" style={{ color: "rgba(250,245,237,0.28)", fontFamily: "var(--font-body)" }}>
             Managed by{" "}
             <a
-              href="https://apexraydigital.com"
+              href="https://twotabstudio.com"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold transition-colors hover:text-[var(--color-gold)]"
               style={{ color: "rgba(250,245,237,0.45)", letterSpacing: "0.08em" }}
             >
-              APEXRAY DIGITAL AGENCY
+              TWO TAB STUDIO
             </a>
           </p>
         </div>
