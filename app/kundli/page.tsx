@@ -397,7 +397,7 @@ export default function KundliPage() {
 
             {/* Consultation CTA */}
             <div
-              className="mt-8 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6"
+              className="mt-3 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6"
               style={{
                 background: "linear-gradient(135deg, var(--color-saffron), var(--color-saffron-dark))",
                 border: "1px solid rgba(209,168,110,0.2)",
