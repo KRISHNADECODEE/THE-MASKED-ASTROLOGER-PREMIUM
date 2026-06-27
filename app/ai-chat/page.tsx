@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MandalaBackground } from "@/components/MandalaBackground";
-import { Sparkles, MessageSquare, Send, BellRing, Lock, User, UserCheck } from "lucide-react";
+import { MessageSquare, Send, BellRing, Lock, UserCheck, Phone } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -22,12 +22,16 @@ const CREDIBILITY_ITEMS = [
 
 export default function AiChatPage() {
   const { user } = useAuth();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [isJoined, setIsJoined] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     if (user?.email) setEmail((e) => e || user.email!);
   }, [user]);
+
   const [messages, setMessages] = useState<Array<{ sender: "user" | "bot"; text: string }>>([
     {
       sender: "bot",
@@ -36,23 +40,35 @@ export default function AiChatPage() {
   ]);
   const [inputText, setInputText] = useState("");
 
-  const handleJoinWaitlist = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!name.trim() || !email.trim() || !message.trim()) return;
 
-    toast.loading("Securing your spot...", { id: "waitlist" });
+    toast.loading("Sending your message...", { id: "contact" });
     try {
-      const res = await fetch("/api/waitlist", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: "ai_chat" }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim() || undefined,
+          subject: "AI Astrologer Waitlist",
+          message: message.trim(),
+        }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not join waitlist");
-      toast.success(data.message || "Welcome aboard! You have joined the waitlist.", { id: "waitlist" });
-      setIsJoined(true);
+      if (!res.ok) throw new Error(data.error || "Could not send message");
+      // also silently join the waitlist
+      fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), source: "ai_chat" }),
+      });
+      toast.success("Message sent! We will contact you soon.", { id: "contact" });
+      setIsSubmitted(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not join waitlist", { id: "waitlist" });
+      toast.error(err instanceof Error ? err.message : "Could not send message", { id: "contact" });
     }
   };
 
@@ -120,7 +136,7 @@ export default function AiChatPage() {
               ))}
             </div>
 
-            {/* Waitlist Form card */}
+            {/* Contact / Waitlist Form card */}
             <div
               className="p-6 rounded-2xl border"
               style={{
@@ -128,32 +144,92 @@ export default function AiChatPage() {
                 borderColor: "rgba(209, 168, 110, 0.25)",
               }}
             >
-              {!isJoined ? (
-                <form onSubmit={handleJoinWaitlist} className="flex flex-col gap-4">
+              {!isSubmitted ? (
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-gold)] flex items-center gap-1.5">
-                    <BellRing size={12} className="animate-bounce" /> Join the Batched Waitlist
+                    <BellRing size={12} className="animate-bounce" /> Get Early Access &amp; Ask a Question
                   </p>
-                  <div className="flex gap-2">
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="input-field flex-1"
-                    />
-                    <button type="submit" className="btn-gold shrink-0 px-5 text-xs py-2">
-                      Join Waitlist
-                    </button>
+
+                  {/* Name + Email row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "rgba(45,41,38,0.5)" }}>
+                        Full Name <span style={{ color: "var(--color-saffron)" }}>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Your name"
+                        className="input-field text-sm"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "rgba(45,41,38,0.5)" }}>
+                        Email <span style={{ color: "var(--color-saffron)" }}>*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@email.com"
+                        className="input-field text-sm"
+                      />
+                    </div>
                   </div>
+
+                  {/* Phone */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "rgba(45,41,38,0.5)" }}>
+                      Phone / WhatsApp <span style={{ color: "rgba(45,41,38,0.35)" }}>(optional)</span>
+                    </label>
+                    <div className="relative">
+                      <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "rgba(45,41,38,0.4)" }} />
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+91 98765 43210"
+                        className="input-field text-sm pl-8"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Message */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "rgba(45,41,38,0.5)" }}>
+                      Your Question / Message <span style={{ color: "var(--color-saffron)" }}>*</span>
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="What would you like to ask the AI Astrologer? Or just say hi!"
+                      className="input-field text-sm resize-none"
+                      style={{ minHeight: "80px" }}
+                    />
+                  </div>
+
+                  <button type="submit" className="btn-gold text-xs py-2.5 w-full flex items-center justify-center gap-2">
+                    <Send size={13} /> Send Message &amp; Join Waitlist
+                  </button>
+
                   <p className="text-[10px]" style={{ color: "rgba(45, 41, 38, 0.5)" }}>
-                    No spam. Get notified the instant your chart prediction module becomes ready.
+                    No spam. You will be notified when the AI Astrologer goes live.
                   </p>
                 </form>
               ) : (
-                <div className="flex items-center gap-3 text-sm font-semibold text-[#4CAF50] py-2">
-                  <UserCheck size={20} />
-                  <span>You are on the waitlist! We will contact you soon.</span>
+                <div className="flex flex-col items-center gap-3 py-6 text-center">
+                  <UserCheck size={32} style={{ color: "#4CAF50" }} />
+                  <p className="font-semibold text-sm" style={{ color: "var(--color-midnight)" }}>
+                    Message received! You are on the waitlist.
+                  </p>
+                  <p className="text-xs" style={{ color: "rgba(45,41,38,0.55)" }}>
+                    We will reach out to you on your email{phone ? " or WhatsApp" : ""} soon.
+                  </p>
                 </div>
               )}
             </div>

@@ -4,11 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, subject, message } = body as {
+    const { name, email, subject, message, phone } = body as {
       name?: string;
       email?: string;
       subject?: string;
       message?: string;
+      phone?: string;
     };
 
     if (!name || name.trim().length < 2) {
@@ -26,11 +27,15 @@ export async function POST(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    const finalMessage = phone?.trim()
+      ? `📱 Phone/WhatsApp: ${phone.trim()}\n\n${message.trim()}`
+      : message.trim();
+
     const { error } = await supabase.from("contact_messages").insert({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       subject: subject?.trim() || null,
-      message: message.trim(),
+      message: finalMessage,
       user_id: user?.id ?? null,
     });
 
