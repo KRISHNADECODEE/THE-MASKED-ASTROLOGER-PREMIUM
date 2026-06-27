@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MapPin, Calendar, Clock, User, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, Clock, User, ChevronRight, Keyboard } from "lucide-react";
 
 interface FormData {
   name: string;
@@ -23,6 +23,22 @@ interface Place { name: string; lat: number; lng: number; tz: number }
 
 const roundHalf = (n: number) => Math.round(n * 2) / 2;
 
+function toTob(h: number, m: number, ampm: "AM" | "PM"): string {
+  let hour = h % 12;
+  if (ampm === "PM") hour += 12;
+  return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function fromTob(tob: string): { h: number; m: number; ampm: "AM" | "PM" } {
+  if (!tob) return { h: 12, m: 0, ampm: "AM" };
+  const [hStr, mStr] = tob.split(":");
+  const hour24 = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  const ampm: "AM" | "PM" = hour24 < 12 ? "AM" : "PM";
+  const h = hour24 % 12 || 12;
+  return { h, m, ampm };
+}
+
 export function KundliForm({ onGenerate, loading }: Props) {
   const [step, setStep]   = useState(1);
   const [form, setForm]   = useState<FormData>({
@@ -33,6 +49,32 @@ export function KundliForm({ onGenerate, loading }: Props) {
   const [places, setPlaces] = useState<Place[]>([]);
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Custom time picker state
+  const [timeMode, setTimeMode] = useState<"picker" | "text">("picker");
+  const [tHour, setTHour] = useState(12);
+  const [tMin, setTMin] = useState(0);
+  const [tAmPm, setTAmPm] = useState<"AM" | "PM">("AM");
+  const [textTime, setTextTime] = useState("");
+
+  // Sync picker → form.tob
+  const syncPicker = (h: number, m: number, ap: "AM" | "PM") => {
+    const tob = toTob(h, m, ap);
+    setTHour(h); setTMin(m); setTAmPm(ap);
+    update("tob", tob);
+  };
+
+  // Sync text → form.tob
+  const handleTextTime = (val: string) => {
+    setTextTime(val);
+    // accept HH:MM (24h) or H:MM AM/PM
+    const m24 = val.match(/^(\d{1,2}):(\d{2})$/);
+    if (m24) {
+      update("tob", `${String(parseInt(m24[1])).padStart(2, "0")}:${m24[2]}`);
+      const parsed = fromTob(`${String(parseInt(m24[1])).padStart(2, "0")}:${m24[2]}`);
+      setTHour(parsed.h); setTMin(parsed.m); setTAmPm(parsed.ampm);
+    }
+  };
 
   // Global birth-place search via OpenStreetMap Nominatim (real lat/lng + tz).
   useEffect(() => {
@@ -196,19 +238,86 @@ export function KundliForm({ onGenerate, loading }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "rgba(45, 41, 38, 0.5)" }}>
-                Time of Birth *
-              </label>
-              <div className="relative">
-                <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(45, 41, 38, 0.3)" }} />
-                <input
-                  type="time"
-                  value={form.tob}
-                  onChange={(e) => update("tob", e.target.value)}
-                  className="input-field pl-10"
-                />
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(45, 41, 38, 0.5)" }}>
+                  Time of Birth *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setTimeMode((m) => m === "picker" ? "text" : "picker")}
+                  className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-md transition-all"
+                  style={{ color: "var(--color-gold)", background: "rgba(209,168,110,0.1)", border: "1px solid rgba(209,168,110,0.2)" }}
+                >
+                  {timeMode === "picker" ? <><Keyboard size={10} /> Type manually</> : <><Clock size={10} /> Use picker</>}
+                </button>
               </div>
-              <p className="text-xs mt-2" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-body)" }}>
+
+              {timeMode === "picker" ? (
+                <div className="flex gap-2 items-center">
+                  {/* Hour */}
+                  <select
+                    value={tHour}
+                    onChange={(e) => syncPicker(parseInt(e.target.value), tMin, tAmPm)}
+                    className="input-field text-center flex-1"
+                    style={{ fontFamily: "var(--font-mono)", fontSize: "1.1rem", fontWeight: 600 }}
+                  >
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                      <option key={h} value={h}>{String(h).padStart(2, "0")}</option>
+                    ))}
+                  </select>
+
+                  <span className="text-xl font-bold" style={{ color: "var(--color-gold)" }}>:</span>
+
+                  {/* Minute */}
+                  <select
+                    value={tMin}
+                    onChange={(e) => syncPicker(tHour, parseInt(e.target.value), tAmPm)}
+                    className="input-field text-center flex-1"
+                    style={{ fontFamily: "var(--font-mono)", fontSize: "1.1rem", fontWeight: 600 }}
+                  >
+                    {Array.from({ length: 60 }, (_, i) => i).map((m) => (
+                      <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
+                    ))}
+                  </select>
+
+                  {/* AM / PM */}
+                  <div className="flex rounded-lg overflow-hidden shrink-0" style={{ border: "1px solid rgba(209,168,110,0.3)" }}>
+                    {(["AM", "PM"] as const).map((ap) => (
+                      <button
+                        key={ap}
+                        type="button"
+                        onClick={() => syncPicker(tHour, tMin, ap)}
+                        className="px-3 py-2 text-sm font-bold transition-all"
+                        style={{
+                          background: tAmPm === ap ? "var(--color-gold)" : "transparent",
+                          color: tAmPm === ap ? "var(--color-midnight)" : "rgba(45,41,38,0.5)",
+                        }}
+                      >
+                        {ap}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(45, 41, 38, 0.3)" }} />
+                  <input
+                    type="text"
+                    value={textTime}
+                    onChange={(e) => handleTextTime(e.target.value)}
+                    placeholder="e.g. 10:34 or 22:15"
+                    className="input-field pl-10"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  />
+                </div>
+              )}
+
+              {form.tob && (
+                <p className="text-xs mt-2 font-mono" style={{ color: "var(--color-gold-dark)" }}>
+                  ⏰ {form.tob} (24h) · {tHour}:{String(tMin).padStart(2,"0")} {tAmPm}
+                </p>
+              )}
+              <p className="text-xs mt-1" style={{ color: "rgba(45, 41, 38, 0.4)", fontFamily: "var(--font-body)" }}>
                 💡 Check your birth certificate for accurate time. Even 5 minutes matter.
               </p>
             </div>
