@@ -81,9 +81,9 @@ export const CONSULTATION_SERVICES = [
     priceDisplay: "€20",
     duration: "60 minutes",
     description:
-      "A deep, personalised reading analysed through 6 different astrological systems — not just one. Most astrologers rely on a single method; here you get Vedic, Bhrigu Nandi Nadi, Jaimini, Parashari, Numerology, and Tarot (if needed) working together for greater accuracy.",
+      "A deep, personalised reading analysed through 7 different astrological systems — not just one. Most astrologers rely on a single method; here you get Vedic, Bhrigu Nandi Nadi, Parashari, Jaimini, Lal Kitab, Numerology, and Tarot (if needed) working together for greater accuracy.",
     features: [
-      "30 mins deep chart analysis across 6 systems",
+      "30 mins deep chart analysis across 7 systems",
       "30 mins live consultation — Call or Chat",
       "Love, marriage, career, finance & more",
       "Personalised remedies included",

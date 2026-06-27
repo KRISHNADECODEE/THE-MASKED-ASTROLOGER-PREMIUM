@@ -45,7 +45,7 @@ export default function ConsultationPage() {
           <div className="rounded-2xl p-7" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
             <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>My Approach</p>
             <h3 className="mb-2" style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "var(--color-midnight)" }}>
-              I use 6 different systems
+              I use 7 different systems
             </h3>
             <p className="text-sm mb-5 leading-relaxed" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>
               More than 90% of astrologers rely on one primary method. I study your chart through multiple systems for a much deeper and more accurate analysis.
@@ -54,8 +54,9 @@ export default function ConsultationPage() {
               {[
                 { n: "Vedic", sub: "Classical Jyotish" },
                 { n: "Bhrigu Nandi Nadi", sub: "Ancient nadi system" },
-                { n: "Jaimini", sub: "Chara dasha & karakas" },
                 { n: "Parashari", sub: "Vimshottari dasha" },
+                { n: "Jaimini", sub: "Chara dasha & karakas" },
+                { n: "Lal Kitab", sub: "Practical remedies" },
                 { n: "Numerology", sub: "Name & date analysis" },
                 { n: "Tarot", sub: "If needed" },
               ].map(({ n, sub }) => (

@@ -10,7 +10,7 @@ const CREDENTIALS = [
   { value: "5,000+", label: "Consultations" },
 ];
 
-const CERTS = ["Vedic Jyotish", "Lal Kitab", "Nadi Astrology", "KP System"];
+const CERTS = ["Vedic Jyotish", "Bhrigu Nandi Nadi", "Jaimini", "Lal Kitab", "Parashari", "Numerology", "Tarot"];
 
 const MODE: Record<string, string> = {
   "cs-1": "📞 Call / 💬 Chat",
@@ -51,9 +51,9 @@ export function AstrologerProfile() {
               Senior Vedic Astrologer · Predictive Jyotish &amp; Practical Remedies
             </p>
             <p className="text-sm leading-relaxed mb-6 max-w-2xl" style={{ color: "rgba(250,245,237,0.65)", fontFamily: "var(--font-body)", lineHeight: 1.8 }}>
-              Trained in classical Vedic astrology with deep specialisation across Lal Kitab,
-              Nadi, and the KP system. Known for honest, no-sugar-coating readings and
-              practical remedies that clients can actually follow — career, marriage,
+              Trained in classical Vedic astrology with deep specialisation across Bhrigu Nandi Nadi,
+              Jaimini, Parashari, Lal Kitab, and Numerology. Known for honest, no-sugar-coating
+              readings and practical remedies that clients can actually follow — career, marriage,
               health, finance, and spiritual growth.
             </p>
 
