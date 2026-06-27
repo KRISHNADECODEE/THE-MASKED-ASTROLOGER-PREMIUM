@@ -38,58 +38,93 @@ export default function ConsultationPage() {
 
       <div className="container-xl py-16">
 
-        {/* Connect modes */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16 max-w-3xl mx-auto">
-          {[
-            { emoji: "💬", title: "Chat", desc: "Written Q&A report — answered in detail" },
-            { emoji: "📞", title: "Call", desc: "Voice-note reading delivered to your phone" },
-            { emoji: "📹", title: "Video", desc: "Live 1:1 session on Zoom / Google Meet" },
-          ].map((m) => (
-            <div key={m.title} className="rounded-2xl p-5 text-center" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
-              <div className="text-3xl mb-2">{m.emoji}</div>
-              <p className="font-semibold text-sm" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{m.title}</p>
-              <p className="text-xs mt-1" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>{m.desc}</p>
-            </div>
-          ))}
+        {/* 6 Systems + Topics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-4xl mx-auto">
+
+          {/* Systems I use */}
+          <div className="rounded-2xl p-7" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>My Approach</p>
+            <h3 className="mb-2" style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "var(--color-midnight)" }}>
+              I use 6 different systems
+            </h3>
+            <p className="text-sm mb-5 leading-relaxed" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>
+              More than 90% of astrologers rely on one primary method. I study your chart through multiple systems for a much deeper and more accurate analysis.
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              {[
+                { n: "Vedic", sub: "Classical Jyotish" },
+                { n: "Bhrigu Nandi Nadi", sub: "Ancient nadi system" },
+                { n: "Jaimini", sub: "Chara dasha & karakas" },
+                { n: "Parashari", sub: "Vimshottari dasha" },
+                { n: "Numerology", sub: "Name & date analysis" },
+                { n: "Tarot", sub: "If needed" },
+              ].map(({ n, sub }) => (
+                <li key={n} className="flex items-center gap-3">
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold" style={{ background: "rgba(209,168,110,0.15)", color: "var(--color-gold-dark)" }}>✦</span>
+                  <span>
+                    <span className="text-sm font-semibold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{n}</span>
+                    <span className="text-xs ml-2" style={{ color: "rgba(45,41,38,0.45)", fontFamily: "var(--font-body)" }}>{sub}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Topics */}
+          <div className="rounded-2xl p-7" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>You Can Ask About</p>
+            <h3 className="mb-2" style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "var(--color-midnight)" }}>
+              Any area of your life
+            </h3>
+            <p className="text-sm mb-5 leading-relaxed" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>
+              No topic is off-limits. Ask whatever is weighing on your mind and get honest, clear answers.
+            </p>
+            <ul className="flex flex-col gap-2.5">
+              {[
+                "Love & relationships",
+                "Marriage & future spouse",
+                "Career, business & finances",
+                "Friendships & social circle",
+                "Court cases & disputes",
+                "Major life events & timings",
+                "Current phase & future predictions",
+                "Remedies & personal guidance",
+              ].map((t) => (
+                <li key={t} className="flex items-center gap-3">
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold" style={{ background: "rgba(209,168,110,0.15)", color: "var(--color-gold-dark)" }}>✦</span>
+                  <span className="text-sm" style={{ color: "rgba(45,41,38,0.75)", fontFamily: "var(--font-body)" }}>{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        {/* Service cards */}
-        <h2 className="section-title text-center mb-12">Choose Your Reading</h2>
+        {/* Service card */}
+        <h2 className="section-title text-center mb-10">Book a Consultation</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div className="max-w-lg mx-auto mb-16">
           {CONSULTATION_SERVICES.map((svc) => (
             <div
               key={svc.id}
               className="rounded-2xl overflow-hidden"
-              style={{
-                background: svc.popular ? "var(--color-midnight)" : "var(--color-ivory)",
-                border: svc.popular ? "2px solid var(--color-gold)" : "1px solid rgba(209,168,110,0.2)",
-                position: "relative",
-              }}
+              style={{ background: "var(--color-midnight)", border: "2px solid var(--color-gold)", position: "relative" }}
             >
-              {svc.popular && (
-                <div
-                  className="absolute top-0 left-0 right-0 py-2 text-center text-xs font-bold uppercase tracking-widest"
-                  style={{ background: "var(--color-gold)", color: "var(--color-midnight)" }}
-                >
-                  Most Popular
-                </div>
-              )}
+              <div className="absolute top-0 left-0 right-0 py-2 text-center text-xs font-bold uppercase tracking-widest" style={{ background: "var(--color-gold)", color: "var(--color-midnight)" }}>
+                1 Hour Personal Consultation
+              </div>
 
-              <div className={`p-7 flex flex-col gap-4 ${svc.popular ? "pt-12" : ""}`}>
+              <div className="p-7 pt-12 flex flex-col gap-4">
                 <div className="text-3xl">{svc.icon}</div>
                 <div>
-                  <h3
-                    style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: svc.popular ? "var(--color-parchment)" : "var(--color-midnight)" }}
-                  >
+                  <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--color-parchment)" }}>
                     {svc.title}
                   </h3>
-                  <p className="text-xs mt-0.5" style={{ color: svc.popular ? "rgba(250,245,237,0.5)" : "rgba(45,41,38,0.45)", fontFamily: "var(--font-body)" }}>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(250,245,237,0.5)", fontFamily: "var(--font-body)" }}>
                     {svc.subtitle}
                   </p>
                 </div>
 
-                <p className="text-sm leading-relaxed" style={{ color: svc.popular ? "rgba(250,245,237,0.6)" : "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(250,245,237,0.6)", fontFamily: "var(--font-body)" }}>
                   {svc.description}
                 </p>
 
@@ -97,21 +132,19 @@ export default function ConsultationPage() {
                   {svc.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">
                       <Check size={14} style={{ color: "var(--color-gold)", marginTop: "2px", flexShrink: 0 }} />
-                      <span style={{ color: svc.popular ? "rgba(250,245,237,0.7)" : "rgba(45,41,38,0.65)", fontFamily: "var(--font-body)" }}>{f}</span>
+                      <span style={{ color: "rgba(250,245,237,0.7)", fontFamily: "var(--font-body)" }}>{f}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="pt-4 mt-auto" style={{ borderTop: `1px solid ${svc.popular ? "rgba(209,168,110,0.2)" : "rgba(209,168,110,0.12)"}` }}>
-                  <p
-                    style={{ fontFamily: "var(--font-body)", fontSize: "1.6rem", fontWeight: 800, color: svc.popular ? "var(--color-gold)" : "var(--color-midnight)" }}
-                  >
-                    <Money inr={svc.price} />
+                <div className="pt-4 mt-auto" style={{ borderTop: "1px solid rgba(209,168,110,0.2)" }}>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: "2rem", fontWeight: 800, color: "var(--color-gold)" }}>
+                    {svc.priceDisplay ?? <Money inr={svc.price} />}
                   </p>
-                  <Link
-                    href={`?service=${svc.id}#book`}
-                    className={svc.popular ? "btn-gold w-full text-center mt-3 block" : "btn-saffron w-full text-center mt-3 block"}
-                  >
+                  <p className="text-xs mb-3" style={{ color: "rgba(250,245,237,0.35)", fontFamily: "var(--font-body)" }}>
+                    or equivalent in your local currency
+                  </p>
+                  <Link href={`?service=${svc.id}#book`} className="btn-gold w-full text-center block">
                     Book Now
                   </Link>
                 </div>

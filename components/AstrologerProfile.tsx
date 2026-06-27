@@ -12,11 +12,8 @@ const CREDENTIALS = [
 
 const CERTS = ["Vedic Jyotish", "Lal Kitab", "Nadi Astrology", "KP System"];
 
-// Map each service to a connect mode so pricing reads clearly.
 const MODE: Record<string, string> = {
-  "cs-1": "📞 Voice / Call",
-  "cs-2": "💬 Chat / Written",
-  "cs-3": "📹 Live Video",
+  "cs-1": "📞 Call / 💬 Chat",
 };
 
 export function AstrologerProfile() {
@@ -109,7 +106,9 @@ export function AstrologerProfile() {
                 <p className="text-xs mt-1" style={{ color: "rgba(45,41,38,0.55)", fontFamily: "var(--font-body)" }}>{svc.subtitle} · {svc.duration}</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className="font-bold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)", fontSize: "1.1rem" }}><Money inr={svc.price} /></span>
+                <span className="font-bold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)", fontSize: "1.1rem" }}>
+                  {svc.priceDisplay ?? <Money inr={svc.price} />}
+                </span>
                 <Link href={`?service=${svc.id}#book`} className="btn-gold text-xs px-4 py-2">Book</Link>
               </div>
             </div>

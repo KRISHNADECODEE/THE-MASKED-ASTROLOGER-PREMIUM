@@ -75,58 +75,22 @@ export const TESTIMONIALS: Testimonial[] = [
 export const CONSULTATION_SERVICES = [
   {
     id: "cs-1",
-    title: "Voice Note Reading",
-    subtitle: "48-hour delivery",
-    price: 1500,
-    duration: "Detailed audio analysis",
+    title: "1 Hour Personal Consultation",
+    subtitle: "30 min chart analysis + 30 min live session",
+    price: 1800,        // base INR ≈ €20
+    priceDisplay: "€20",
+    duration: "60 minutes",
     description:
-      "Send your birth details and specific questions. Receive a 20–30 minute detailed voice note analysis from our senior astrologer covering your chart, dashas, and personalised remedies.",
+      "A deep, personalised reading analysed through 6 different astrological systems — not just one. Most astrologers rely on a single method; here you get Vedic, Bhrigu Nandi Nadi, Jaimini, Parashari, Numerology, and Tarot (if needed) working together for greater accuracy.",
     features: [
-      "Full kundli analysis",
-      "Current dasha interpretation",
-      "Specific question answered",
-      "3 personalised remedies",
-      "48-hour turnaround",
+      "30 mins deep chart analysis across 6 systems",
+      "30 mins live consultation — Call or Chat",
+      "Love, marriage, career, finance & more",
+      "Personalised remedies included",
+      "Hindi or English — your choice",
     ],
-    icon: "🎙️",
-    popular: false,
-  },
-  {
-    id: "cs-2",
-    title: "3 Q&A Written Report",
-    subtitle: "24-hour delivery",
-    price: 999,
-    duration: "Written + chart snapshot",
-    description:
-      "Ask up to 3 specific questions about your life — career, relationships, health, finance. Receive a detailed written report with chart snapshot and remedies.",
-    features: [
-      "3 specific questions answered",
-      "Chart screenshot included",
-      "Personalised remedies",
-      "Written in Hindi or English",
-      "24-hour delivery",
-    ],
-    icon: "✍️",
+    icon: "🔮",
     popular: true,
-  },
-  {
-    id: "cs-3",
-    title: "Live 1:1 Session",
-    subtitle: "60 minutes on Zoom/Meet",
-    price: 3500,
-    duration: "60-minute live session",
-    description:
-      "A full one-hour live video consultation with detailed kundli analysis, dasha predictions, remedies, and open Q&A. You can ask anything and get real-time answers.",
-    features: [
-      "60-minute Zoom/Meet session",
-      "Complete chart walkthrough",
-      "Dasha & transit analysis",
-      "Unlimited questions",
-      "Recording shared after",
-      "Follow-up WhatsApp for 7 days",
-    ],
-    icon: "📹",
-    popular: false,
   },
 ];
 
