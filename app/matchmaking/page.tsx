@@ -183,6 +183,32 @@ export default function MatchmakingPage() {
               </div>
             </motion.div>
 
+            {/* Moon nakshatra detail (verify input) */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {([
+                { label: boy.name || "Groom", info: result.boyInfo },
+                { label: girl.name || "Bride", info: result.girlInfo },
+              ] as { label: string; info: typeof result.boyInfo }[]).map(({ label, info }) => (
+                <div key={label} className="rounded-xl p-4" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.18)" }}>
+                  <p className="text-[10px] uppercase tracking-widest font-bold mb-3" style={{ color: "var(--color-gold)", fontFamily: "var(--font-body)" }}>
+                    {label} — Moon Details
+                  </p>
+                  {[
+                    ["Nakshatra", `${info.nakshatra} (Pada ${info.nakshatra_pada})`],
+                    ["Rashi (Moon sign)", info.rashi],
+                    ["Gana", info.gana],
+                    ["Nadi", info.nadi],
+                    ["Yoni", info.yoni],
+                  ].map(([k, v]) => (
+                    <div key={k} className="flex justify-between py-1 text-xs" style={{ borderBottom: "1px solid rgba(209,168,110,0.1)" }}>
+                      <span style={{ color: "rgba(45,41,38,0.5)", fontFamily: "var(--font-body)" }}>{k}</span>
+                      <span className="font-semibold" style={{ color: "var(--color-midnight)", fontFamily: "var(--font-body)" }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
             {/* Koota breakdown */}
             <div className="rounded-2xl p-8 mb-8" style={{ background: "var(--color-ivory)", border: "1px solid rgba(209,168,110,0.2)" }}>
               <h3 className="mb-6" style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--color-midnight)" }}>The 8 Kootas</h3>

@@ -20,6 +20,15 @@ export interface Koota {
   meaning: string;
 }
 
+export interface PartnerInfo {
+  nakshatra: string;
+  nakshatra_pada: number;
+  rashi: string;
+  gana: string;
+  nadi: string;
+  yoni: string;
+}
+
 export interface GunMilanResult {
   kootas: Koota[];
   total: number;
@@ -27,6 +36,8 @@ export interface GunMilanResult {
   verdict: string;
   verdictColor: string;
   summary: string;
+  boyInfo: PartnerInfo;
+  girlInfo: PartnerInfo;
 }
 
 // ── Classical lookup tables (per Nakshatra, 0 = Ashwini) ──────────────
@@ -88,12 +99,13 @@ function grahaMaitriKoota(boyR: number, girlR: number): number {
   return s >= 2 ? 5 : s === 1 ? 4 : s === 0 ? 3 : s === -1 ? 1 : 0;
 }
 function ganaKoota(boyN: number, girlN: number): number {
+  // 0=Deva, 1=Manushya, 2=Rakshasa. Direction matters per classical Parashari.
   const a = GANA[boyN], b = GANA[girlN];
   if (a === b) return 6;
-  const pair = [a, b].sort().join("");
-  if (pair === "01") return 5; // Deva-Manushya
-  if (pair === "02") return 1; // Deva-Rakshasa
-  return 0; // Manushya-Rakshasa
+  if ((a === 0 && b === 1) || (a === 1 && b === 0)) return 5; // Deva–Manushya (either dir)
+  if (a === 0 && b === 2) return 1;  // Deva boy + Rakshasa girl: tolerable
+  // Rakshasa boy + Deva/Manushya girl, or Manushya + Rakshasa: Gana Dosha
+  return 0;
 }
 function bhakootKoota(boyR: number, girlR: number): number {
   const d1 = ((girlR - boyR + 12) % 12) + 1;
@@ -134,5 +146,25 @@ export function calculateGunMilan(boy: PartnerInput, girl: PartnerInput): GunMil
   if (nadiDosha) summary += " Note: Nadi dosha is present (same Nadi) — remedies are advised.";
   else if (bhakootDosha) summary += " Note: Bhakoot dosha is present — consult an astrologer for remedies.";
 
-  return { kootas, total, max, verdict, verdictColor, summary };
+  const RASHI_NAMES = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const GANA_NAMES = ["Deva", "Manushya", "Rakshasa"];
+  const NADI_NAMES2 = ["Aadi", "Madhya", "Antya"];
+  const YONI_ANIMAL = ["Horse","Elephant","Sheep","Serpent","Dog","Cat","Rat","Cow","Buffalo","Tiger","Deer","Monkey","Mongoose","Lion"];
+
+  const boyInfo: PartnerInfo = {
+    nakshatra: b.nakshatra, nakshatra_pada: b.pada,
+    rashi: RASHI_NAMES[bR],
+    gana: GANA_NAMES[GANA[bN]],
+    nadi: NADI_NAMES2[nadiOf(bN)],
+    yoni: YONI_ANIMAL[YONI[bN]],
+  };
+  const girlInfo: PartnerInfo = {
+    nakshatra: g.nakshatra, nakshatra_pada: g.pada,
+    rashi: RASHI_NAMES[gR],
+    gana: GANA_NAMES[GANA[gN]],
+    nadi: NADI_NAMES2[nadiOf(gN)],
+    yoni: YONI_ANIMAL[YONI[gN]],
+  };
+
+  return { kootas, total, max, verdict, verdictColor, summary, boyInfo, girlInfo };
 }
